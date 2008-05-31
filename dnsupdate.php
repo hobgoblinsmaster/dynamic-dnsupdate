@@ -2,7 +2,7 @@
 	<head>
 		<title>Web-based Dynamic DNS Update
 		</title>
-		<META name="author" content="Jaeyoun Kim">
+		<META name="author" content="김재연">
 		<META http-equiv="Content-Type" content="text/html; charset=utf-8">
 		<META http-equiv="Cache-Control" content="no-cache, must-revalidate">
 	</head>
@@ -25,7 +25,7 @@
 							<tr>        <td>TTL</td> 
 								<td width="370"> 
 									<input name="ttl" value="60" type="radio" checked>60
-									<input name="ttl" value="60" type="radio">3600 
+									<input name="ttl" value="3600" type="radio">3600 
 									<input name="ttl" value="86400" type="radio">86400</td>
 							</tr>
 							<tr>        <td>TYPE</td> 
@@ -69,4 +69,5 @@ if (count($response))
 }
 echo "<hr>";
 ?>
+<FONT face="Arial"> <SPAN style="font-size:9pt;"> Copyright (c) 2008-<?php ECHO date("Y"); ?> <U>CSLab.net</U> All rights reserved.</SPAN></FONT>
 </body></html>
