@@ -1,159 +1,217 @@
+<FONT face="Arial"><SPAN style="font-size:10pt;">
 <?php 
 include 'Net/DNS.php';
 
 $update=$_GET[update];
+$domain=$_GET[domain];
 $host=$_GET[host];
 $ttl=$_GET[ttl];
 $type=$_GET[type];
 $type_value=$_GET[type_value];
+$resourceNumber=$_GET[resourceNumber];
 
-echo "Information for Dynamic DNS Update is submitted.";
-echo "<hr>Debug Information -> <br>";
-echo "$update";
-echo "<br>";
-echo "$host";
-echo "<br>";
-echo "$ttl";
-echo "<br>";
-echo "$type";
-echo "<br>";
-echo "$type_value";
-echo "<hr>";
-
-$input = $host . ". " . $ttl . " IN " . $type . " " . $type_value;
-$input2 = $host . ". " . "0 NONE " . $type . " " . $type_value;
-
-$resolver = new Net_DNS_Resolver();
-
-// We should only send the request to the master server
-// accepting DNS updates for the zone.
-$resolver->nameservers = array('ns1.cslab.net');
-
-// We must manually construct the DNS packet for a DNS update
-// First we must instantiate the packet object
-$packet = new Net_DNS_Packet();
-
-// Create the header for the update packet.  Most of the defaults are
-// acceptable, but we must set the header OPCODE to "UPDATE"
-$packet->header = new Net_DNS_Header();
-$packet->header->id = $resolver->nextid();
-$packet->header->qr = 0;
-$packet->header->opcode = "UPDATE";
-
-// As specified in RFC2136, the question section becomes the "ZONE" section.
-// This specifies the zone for which we are requesting a change.  This
-// reflects the zone configuration as specified in the nameserver
-// configuration.
-$packet->question[0] = new Net_DNS_Question('freeserver.kr', "SOA", "IN");
-
-// The "ANSWER" section of the packet becomes the "PREREQUISITE" section of
-// the packet. Section 2.4 of RFC2136 defines the possible values for this
-// section.  As show below, without any prerequisites the nameserver will
-// attempt to perform the update unconditionally.
-$packet->answer = array();
-
-// The AUTHORITY section becomes the "UPDATE" section of the DNS packet.  The
-// UPDATE section is a collection of resource record updates that should be
-// modified in one form or another.  RRs can be deleted or added based on the
-// values passed in the RR object.  These values are specified in RFC2136 but
-// are summarized here:
-//
-// Adding an RR
-// A complete RR object with a non-zero TTL is considered an addition.
-//
-// Deleting an RR
-// A complete RR object with a zero TTL is considered an deletion. An RR that
-// matches (exactly) with all values except for the TTL will be removed.
-//
-// Deleting an RRset
-// A complete RR object with a zero TTL and a type of ANY is considered a
-// deletion of all RRs with the specified name and type. An RR that matches
-// (exactly) with all values except for the TTL and the TYPE will be removed.
-//
-// Deleting all RRsets for a name 
-// A complete RR object with a zero TTL, a type of ANY, and a class of ANY is
-// considered a deletion of all RRs with the specified name. Any RR that
-// matches the name section of the query will be removed.
-//
-// The following specification will delete the RR that has a name of
-// "example.com", class of "IN", type of "A", and an address of
-// "192.0.34.166".
-
-if ($update == "Delete")
+if ($type == "NS" || $type == "MX" )
 {
-	echo $input2;
-	$rrDelete =& Net_DNS_RR::factory($input2);
-	//$rrDelete =& Net_DNS_RR::factory("testdns.freeserver.kr. 0 NONE A 192.168.0.253");
-	$packet->authority[0] = $rrDelete;
+	$input = $domain . ". " . $ttl . " IN " . $type . " " . $type_value;
 }
-//
-// The following specification will add an RR that has a name of example.com,
-// a TTL of 1 hour, a class of "IN", type of "A", and an address of
-// "192.0.34.155").  Note that the only difference between this RR and the
-// previous RR is the value of the TTL.
-
-if ($update == "Add")
+else
 {
+	$input = $host . "." . $domain . ". " . $ttl . " IN " . $type . " " . $type_value;
+}
+
+//echo $input;
+
+if ($update == 'Add')
+{
+	echo "<p>Add a Resource Record<p>";
 	echo $input;
+	echo "<p>";
+	recordAdd($input);
+	//recordAXFR($domain);
+}
+
+if ($update == 'Delete')
+{
+	echo "<p>Delete a Resource Record<p>";
+	recordFind($host, $resourceNumber);
+}
+
+/*----------------------------------------------------------------------------*/
+function recordAdd($input)
+{
+	$resolver = new Net_DNS_Resolver();
+
+	$resolver->nameservers = array('ns1.cslab.net');
+
+	$packet = new Net_DNS_Packet();
+
+	$packet->header = new Net_DNS_Header();
+	$packet->header->id = $resolver->nextid();
+	$packet->header->qr = 0;
+	$packet->header->opcode = "UPDATE";
+	
+	$packet->question[0] = new Net_DNS_Question("freeserver.kr", "SOA", "IN");
+
+	$packet->answer = array();
+	
+	//$rrAdd =& Net_DNS_RR::factory("www1.freeserver.kr. 60 IN A 192.168.0.1");
 	$rrAdd =& Net_DNS_RR::factory($input);
 	$packet->authority[0] = $rrAdd;
+
+	$packet->header->qdcount = count($packet->question);
+	$packet->header->ancount = count($packet->answer);
+	$packet->header->nscount = count($packet->authority);
+	$packet->header->arcount = count($packet->additional);
+
+	$response = $resolver->send_tcp($packet, $packet->data());
+	
+	echo "Update Result: " . $response->header->rcode;
+	
+	if ($response->header->rcode != "NOERROR")
+	{
+	  return($response->header->rcode);
+	}
+	echo "<p><a href=./dnsupdate.php>Go back to the DNS Update</a>";
 }
 
-//
-// The RR modifications are added to the authority (UPDATE) section of the DNS
-// packet.
-//$packet->authority[0] = $rrDelete;
-//$packet->authority[1] = $rrAdd;
-//
-// The signature must be present in any packet sent to a nameserver that
-// requires authentication.  The TSIG RR is added to the additional section of
-// the DNS packet.
-//$tsig =& Net_DNS_RR::factory("keyname.as.specified.in.server. TSIG ThisIsMyKey");
-//$packet->additional = array($tsig);
-
-// Net_DNS does not automatically calculate the number of records stored in
-// each section.  This calculation must be done manually.
-$packet->header->qdcount = count($packet->question);
-$packet->header->ancount = count($packet->answer);
-$packet->header->nscount = count($packet->authority);
-$packet->header->arcount = count($packet->additional);
-//
-// After creating your packet, you must send it to the name server for
-// processing.  DNS updates must use the send_tcp() method: 
-$response = $resolver->send_tcp($packet, $packet->data());
-
-//
-// The response from the server will vary.  If the update was successfuly, the
-// server will have a response code of "NOERROR".  Any other error types will
-// be reported in the response packet's header "rcode" variable.
-
-echo "<br>";
-echo "Update Result: " . $response->header->rcode;
-
-if ($response->header->rcode != "NOERROR")
+/*----------------------------------------------------------------------------*/
+function recordRemove($input)
 {
-  return($response->header->rcode);
+	$resolver = new Net_DNS_Resolver();
+
+	$resolver->nameservers = array('ns1.cslab.net');
+
+	$packet = new Net_DNS_Packet();
+
+	$packet->header = new Net_DNS_Header();
+	$packet->header->id = $resolver->nextid();
+	$packet->header->qr = 0;
+	$packet->header->opcode = "UPDATE";
+	
+	$packet->question[0] = new Net_DNS_Question("freeserver.kr", "SOA", "IN");
+
+	$packet->answer = array();
+
+	echo "<p>";
+	echo "$input";	
+	echo "<p>";
+	$rrDelete =& Net_DNS_RR::factory($input);
+	//$rrDelete =& Net_DNS_RR::factory("system.freeserver.kr. 0 NONE CNAME www.freeserver.kr.");
+	//$rrDelete =& Net_DNS_RR::factory("www3.freeserver.kr. 0 NONE A 192.168.0.1");
+	$packet->authority[0] = $rrDelete;
+
+	$packet->header->qdcount = count($packet->question);
+	$packet->header->ancount = count($packet->answer);
+	$packet->header->nscount = count($packet->authority);
+	$packet->header->arcount = count($packet->additional);
+
+	$response = $resolver->send_tcp($packet, $packet->data());
+	
+	echo "Update Result: " . $response->header->rcode;
+	
+	if ($response->header->rcode != "NOERROR")
+	{
+	  return($response->header->rcode);
+	}
+	echo "<p><a href=./dnsupdate.php>Go back to the DNS Update</a>";
 }
 
-$resolver1 = new Net_DNS_Resolver();
-
-// debug output (0 : disalbe, 1 : enable)
-$resolver1->debug = 0;
-
-$response = $resolver1->axfr('freeserver.kr');
-
-echo "<br><br>Asynchronous Full Transfer Zone<hr>";
-echo "<PRE>";
-
-if (count($response)) 
+/*----------------------------------------------------------------------------*/
+function recordFind($host, $resourceNumber)
 {
-  foreach ($response as $rr) 
-  {
-		$rr->display();
-  }
+	$resolver = new Net_DNS_Resolver();
+
+	// debug output (0 : disalbe, 1 : enable)
+	$resolver->debug = 0;
+	
+	$response = $resolver->axfr($host);
+
+	$i = 0;
+	if (count($response)) 
+	{
+	  foreach ($response as $rr) 
+	  {
+	  	$i = $i + 1;
+	  	if ($i == $resourceNumber)
+	  	{
+				//$rr->display();
+				$rrText = $rr->string();
+				$pieces = explode("\t", $rrText);
+				echo "0 :" . $pieces[0];
+				echo "<br>";
+				echo "1 :" . $pieces[1];
+				echo "<br>";
+				echo "2 :" . $pieces[2];
+				echo "<br>";
+				echo "3 :" . $pieces[3];
+				echo "<br>";
+				echo "4 :" . $pieces[4];
+				echo "<br>";
+				echo "5 :" . $pieces[5];
+				
+				if ( $pieces[3] == "CNAME" )
+				{
+			    $pieces4 = substr_replace($pieces[4] , "", -1);
+					$input = $pieces[0] . " 0 NONE " . $pieces[3] . " " . $pieces4;
+					echo "<br>";
+					echo $input;
+				}
+				else if ( $pieces[4] == "NS" )
+				{
+			    $pieces5 = substr_replace($pieces[5] , "", -1);
+					$input = $pieces[0] . " 0 NONE " . $pieces[4] . " " . $pieces5;
+					echo "<br>";
+					echo $input;
+				}
+				else if ( $pieces[4] == "MX" )
+				{
+			    $pieces5 = substr_replace($pieces[5] , "", -1);
+					$input = $pieces[0] . " 0 NONE " . $pieces[4] . " " . $pieces5;
+					echo "<br>";
+					echo $input;
+				}
+				else 
+				{
+					$input = $pieces[0] . " 0 NONE " . $pieces[3] . " " . $pieces[4];
+				}
+				//echo $input;
+				recordRemove($input);
+				echo "<hr>";
+				exit();
+			}
+	  }
+	}
+	if (count($response) == 0)
+	{
+  	echo "AXFR Failed";
+ 	}
 }
-echo "<hr>";
+
+/*----------------------------------------------------------------------------*/
+function recordAXFR($host)
+{
+	$resolver1 = new Net_DNS_Resolver();
+
+	// debug output (0 : disalbe, 1 : enable)
+	$resolver1->debug = 0;
+	
+	$response = $resolver1->axfr($host);
+
+	echo "<br><br>Asynchronous Full Transfer Zone<hr>";
+	echo "<pre>";
+
+	if (count($response)) 
+	{
+	  foreach ($response as $rr) 
+	  {
+			$rr->display();
+	  }
+	}
+	echo "<hr>";
+
+}
+/*----------------------------------------------------------------------------*/
 
 ?>
 
-<a href="./dnsupdate.php">Go back to the DNS Update</a>
+
