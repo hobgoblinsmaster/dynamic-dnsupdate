@@ -1,3 +1,9 @@
+<?php
+// Web-based Dynamic DNS Update
+// @author: Jaeyoun Kim
+// @homepage: http://code.google.com/p/dynamic-dnsupdate/
+// @date: June 1, 2008
+?>
 <html>
 	<head>
 		<title>Web-based Dynamic DNS Update
@@ -8,12 +14,22 @@
 	</head>
 	<body>
 		<h1 style="font-family: Arial;">Web-based Dynamic DNS Update</h1>
-		<style="font-family: Arial;">
-		<span style="font-family: Arial;">This is a web-based dynamic DNS update program that can add, replace or delete DNS resource records in a master server.
-		</span><br style="font-family: Arial;">
+		<a href="http://code.google.com/p/dynamic-dnsupdate/">Project Page</a>
+		<p>
+		<style="font-family: Arial;"><SPAN style="font-size:10pt;">
+		<span style="font-family: Arial;">This is a web-based dynamic DNS update program that can add, replace or delete DNS resource records in a master server. 
+		</span>
+		<br style="font-family: Arial;">
+		<span style="font-family: Arial;">
+		Free to add or delete a RR. This program is very useful for individuals or SMEs' DNS managers who want to manage their DNS resource records easily.
+		You can also update your IP in command line using a wget utility in Linux.
+		<br>eg) <u>wget -O - "http://www.freeserver.kr/dnsupdate2.php?domain=freeserver.kr&host=test1&ttl=60&type=A&type_value=192.168.0.1&update=Add"</u>
+		</span>
+
+		<br style="font-family: Arial;">
 		<h3 style="font-family: Arial;">Add a resource record</h3>
 		<form style="font-family: Arial;" method="get" action="./dnsupdate2.php" name="DynamicDNSUpdate">
-			<table border="1">
+			<table border="0">
 				<tbody>
 					<tr><td> Nameserver</td> 
 						<td width="370"> 
@@ -51,44 +67,50 @@
 					</tr>
 				</tbody>
 			</table>
-		</form> 
+		</form>
+<h3 style="font-family: Arial;"> Delete a resource record</h3>
+<style="font-family: Arial;"><SPAN style="font-size:10pt;">Currently, you can delete only one RR at a time.
+<form style="font-family: Arial;" method="get" action="./dnsupdate2.php" name="DynamicDNSUpdate">
+<table>
+<tr><td>
+<pre><SPAN style="font-size:10pt;">
 <?php 
 include 'Net/DNS.php';
 $resolver = new Net_DNS_Resolver();
 // debug output (0 : disalbe, 1 : enable)
 $resolver->debug = 0;
 $response = $resolver->axfr('freeserver.kr');
-?>
-<hr style="font-family: Arial;">
-<h3 style="font-family: Arial;"> Delete a resource record (You can delete only one RR at a time.)</h3>
-<form style="font-family: Arial;" method="get" action="./dnsupdate2.php" name="DynamicDNSUpdate">
-<pre>
-<?php 
+
 $i = 0;
 if (count($response)) 
 {
   foreach ($response as $rr) 
   {              	
-  	$compare = $rr->string();
     $i = $i + 1;
+  	$compare = $rr->string();
     if ( strstr($compare, 'SOA') || strstr($compare, 'NS') || strstr($compare, '211.208.163.118') )
     {
-			echo "<input name=resourceNumber value=$i type=checkbox disabled> ";
-		}
-		else
-		{
-			echo "<input name=resourceNumber value=$i type=checkbox> ";
-		}		
-		echo "$i.\t";
-		
-		echo $value;		
+		echo "<input name=resourceNumber value=$i type=checkbox disabled> ";
+		echo "<font color=red>";
+	}
+	else
+	{
+		echo "<input name=resourceNumber value=$i type=checkbox> ";
+	}		
+	echo "$i.\t";
+	echo $value;		
     $rr->display();
+    echo "</font>";
   }
 }
 ?>
-<input name="host" value="freeserver.kr" type="hidden"> <input name="update" style="font-weight: bold;" value="Delete" type="submit"> <input name="update" style="font-weight: bold;" value="Cancel" type="reset"><hr> Copyright (c) 2008-<?php ECHO date("Y"); ?> CSLab.net  All rights reserved.</pre>
-		</form>
-		<p>
-<a href="http://code.google.com/p/dynamic-dnsupdate/">Project Page</a>
-	</body>
+</td></tr>
+<tr><td>
+<input name="host" value="freeserver.kr" type="hidden"> <input name="update" style="font-weight: bold;" value="Delete" type="submit"> <input name="update" style="font-weight: bold;" value="Cancel" type="reset">
+</pre>
+</td></tr></table>
+</form>
+<hr>Copyright (c) <?php ECHO date("Y"); ?> CSLab.net  All rights reserved.
+<p>
+</body>
 </html>

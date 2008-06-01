@@ -65,13 +65,19 @@ function recordAdd($input)
 
 	$response = $resolver->send_tcp($packet, $packet->data());
 	
-	echo "Update Result: " . $response->header->rcode;
 	
-	if ($response->header->rcode != "NOERROR")
+	
+	if ($response->header->rcode == "NOERROR")
+	{
+	  echo "Update Result: Dynamic update is successful.";
+	}
+	else if ($response->header->rcode != "NOERROR")
 	{
 	  return($response->header->rcode);
 	}
 	echo "<p><a href=./dnsupdate.php>Go back to the DNS Update</a>";
+	echo "<hr>Copyright (c) 2008 CSLab.net  All rights reserved.";
+
 }
 
 /*----------------------------------------------------------------------------*/
@@ -107,9 +113,11 @@ function recordRemove($input)
 
 	$response = $resolver->send_tcp($packet, $packet->data());
 	
-	echo "Update Result: " . $response->header->rcode;
-	
-	if ($response->header->rcode != "NOERROR")
+	if ($response->header->rcode == "NOERROR")
+	{
+	  echo "Update Result: Dynamic update is successful.";
+	}
+	else if ($response->header->rcode != "NOERROR")
 	{
 	  return($response->header->rcode);
 	}
@@ -134,51 +142,53 @@ function recordFind($host, $resourceNumber)
 	  	$i = $i + 1;
 	  	if ($i == $resourceNumber)
 	  	{
-				//$rr->display();
-				$rrText = $rr->string();
-				$pieces = explode("\t", $rrText);
-				echo "0 :" . $pieces[0];
-				echo "<br>";
-				echo "1 :" . $pieces[1];
-				echo "<br>";
-				echo "2 :" . $pieces[2];
-				echo "<br>";
-				echo "3 :" . $pieces[3];
-				echo "<br>";
-				echo "4 :" . $pieces[4];
-				echo "<br>";
-				echo "5 :" . $pieces[5];
-				
-				if ( $pieces[3] == "CNAME" )
-				{
+			//$rr->display();
+			$rrText = $rr->string();
+			$pieces = explode("\t", $rrText);
+			/*
+			echo "0 :" . $pieces[0];
+			echo "<br>";
+			echo "1 :" . $pieces[1];
+			echo "<br>";
+			echo "2 :" . $pieces[2];
+			echo "<br>";
+			echo "3 :" . $pieces[3];
+			echo "<br>";
+			echo "4 :" . $pieces[4];
+			echo "<br>";
+			echo "5 :" . $pieces[5];
+			*/
+			
+			if ( $pieces[3] == "CNAME" )
+			{
 			    $pieces4 = substr_replace($pieces[4] , "", -1);
-					$input = $pieces[0] . " 0 NONE " . $pieces[3] . " " . $pieces4;
-					echo "<br>";
-					echo $input;
-				}
-				else if ( $pieces[4] == "NS" )
-				{
-			    $pieces5 = substr_replace($pieces[5] , "", -1);
-					$input = $pieces[0] . " 0 NONE " . $pieces[4] . " " . $pieces5;
-					echo "<br>";
-					echo $input;
-				}
-				else if ( $pieces[4] == "MX" )
-				{
-			    $pieces5 = substr_replace($pieces[5] , "", -1);
-					$input = $pieces[0] . " 0 NONE " . $pieces[4] . " " . $pieces5;
-					echo "<br>";
-					echo $input;
-				}
-				else 
-				{
-					$input = $pieces[0] . " 0 NONE " . $pieces[3] . " " . $pieces[4];
-				}
-				//echo $input;
-				recordRemove($input);
-				echo "<hr>";
-				exit();
+				$input = $pieces[0] . " 0 NONE " . $pieces[3] . " " . $pieces4;
+				echo "<br>";
+				echo $input;
 			}
+			else if ( $pieces[4] == "NS" )
+			{
+			    $pieces5 = substr_replace($pieces[5] , "", -1);
+				$input = $pieces[0] . " 0 NONE " . $pieces[4] . " " . $pieces5;
+				echo "<br>";
+				echo $input;
+			}
+			else if ( $pieces[4] == "MX" )
+			{
+			    $pieces5 = substr_replace($pieces[5] , "", -1);
+				$input = $pieces[0] . " 0 NONE " . $pieces[4] . " " . $pieces5;
+				echo "<br>";
+				echo $input;
+			}
+			else 
+			{
+				$input = $pieces[0] . " 0 NONE " . $pieces[3] . " " . $pieces[4];
+			}
+			//echo $input;
+			recordRemove($input);
+			echo "<hr>Copyright (c) 2008 CSLab.net  All rights reserved.";
+			exit();
+		}
 	  }
 	}
 	if (count($response) == 0)
@@ -208,10 +218,6 @@ function recordAXFR($host)
 	  }
 	}
 	echo "<hr>";
-
 }
 /*----------------------------------------------------------------------------*/
-
 ?>
-
-
