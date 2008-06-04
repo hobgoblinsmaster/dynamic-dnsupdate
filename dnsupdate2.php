@@ -8,7 +8,7 @@ $host=$_GET[host];
 $ttl=$_GET[ttl];
 $type=$_GET[type];
 $type_value=$_GET[type_value];
-$resourceNumber=$_GET[resourceNumber];
+$rrnumber=$_GET[rrnumber];
 
 if ($type == "NS" || $type == "MX" )
 {
@@ -19,13 +19,10 @@ else
 	$input = $host . "." . $domain . ". " . $ttl . " IN " . $type . " " . $type_value;
 }
 
-//echo $input;
 
 if ($update == 'Add')
 {
 	echo "<p>Add a Resource Record<p>";
-	echo $input;
-	echo "<p>";
 	recordAdd($input);
 	//recordAXFR($domain);
 }
@@ -33,7 +30,7 @@ if ($update == 'Add')
 if ($update == 'Delete')
 {
 	echo "<p>Delete a Resource Record<p>";
-	recordFind($host, $resourceNumber);
+	recordFind($host, $rrnumber);
 }
 
 /*----------------------------------------------------------------------------*/
@@ -93,14 +90,10 @@ function recordRemove($input)
 	$packet->header->id = $resolver->nextid();
 	$packet->header->qr = 0;
 	$packet->header->opcode = "UPDATE";
-	
-	$packet->question[0] = new Net_DNS_Question("freeserver.kr", "SOA", "IN");
 
+	$packet->question[0] = new Net_DNS_Question("freeserver.kr", "SOA", "IN");
 	$packet->answer = array();
 
-	echo "<p>";
-	echo "$input";	
-	echo "<p>";
 	$rrDelete =& Net_DNS_RR::factory($input);
 	//$rrDelete =& Net_DNS_RR::factory("system.freeserver.kr. 0 NONE CNAME www.freeserver.kr.");
 	//$rrDelete =& Net_DNS_RR::factory("www3.freeserver.kr. 0 NONE A 192.168.0.1");
@@ -125,13 +118,10 @@ function recordRemove($input)
 }
 
 /*----------------------------------------------------------------------------*/
-function recordFind($host, $resourceNumber)
+function recordFind($host, $rrnumber)
 {
 	$resolver = new Net_DNS_Resolver();
-
-	// debug output (0 : disalbe, 1 : enable)
 	$resolver->debug = 0;
-	
 	$response = $resolver->axfr($host);
 
 	$i = 0;
@@ -139,56 +129,56 @@ function recordFind($host, $resourceNumber)
 	{
 	  foreach ($response as $rr) 
 	  {
-	  	$i = $i + 1;
-	  	if ($i == $resourceNumber)
+	  	if ($i == $rrnumber)
 	  	{
-			//$rr->display();
-			$rrText = $rr->string();
-			$pieces = explode("\t", $rrText);
-			/*
-			echo "0 :" . $pieces[0];
-			echo "<br>";
-			echo "1 :" . $pieces[1];
-			echo "<br>";
-			echo "2 :" . $pieces[2];
-			echo "<br>";
-			echo "3 :" . $pieces[3];
-			echo "<br>";
-			echo "4 :" . $pieces[4];
-			echo "<br>";
-			echo "5 :" . $pieces[5];
-			*/
+				//$rr->display();
+				$rrText = $rr->string();
+				$pieces = explode("\t", $rrText);
+				echo "0 :" . $pieces[0];
+				echo "<br>";
+				echo "1 :" . $pieces[1];
+				echo "<br>";
+				echo "2 :" . $pieces[2];
+				echo "<br>";
+				echo "3 :" . $pieces[3];
+				echo "<br>";
+				echo "4 :" . $pieces[4];
+				echo "<br>";
+				echo "5 :" . $pieces[5];
+		  	$i = $i + 1;
 			
-			if ( $pieces[3] == "CNAME" )
-			{
+				if ( $pieces[3] == "CNAME" )
+				{
 			    $pieces4 = substr_replace($pieces[4] , "", -1);
-				$input = $pieces[0] . " 0 NONE " . $pieces[3] . " " . $pieces4;
-				echo "<br>";
-				echo $input;
-			}
-			else if ( $pieces[4] == "NS" )
-			{
+					$input = $pieces[0] . " 0 NONE " . $pieces[3] . " " . $pieces4;
+					echo "<br>";
+					echo $input;
+				}
+				else if ( $pieces[4] == "NS" )
+				{
 			    $pieces5 = substr_replace($pieces[5] , "", -1);
-				$input = $pieces[0] . " 0 NONE " . $pieces[4] . " " . $pieces5;
-				echo "<br>";
-				echo $input;
-			}
-			else if ( $pieces[4] == "MX" )
-			{
+					$input = $pieces[0] . " 0 NONE " . $pieces[4] . " " . $pieces5;
+					echo "<br>";
+					echo $input;
+				}
+				else if ( $pieces[4] == "MX" )
+				{
 			    $pieces5 = substr_replace($pieces[5] , "", -1);
-				$input = $pieces[0] . " 0 NONE " . $pieces[4] . " " . $pieces5;
-				echo "<br>";
-				echo $input;
+					$input = $pieces[0] . " 0 NONE " . $pieces[4] . " " . $pieces5;
+					echo "<br>";
+					echo $input;
+				}
+				else 
+				{
+					echo "<br>";
+					$input = $pieces[0] . " 0 NONE " . $pieces[3] . " " . $pieces[4];
+				}
+				//echo $input;
+				recordRemove($input);
+				echo "<hr>Copyright (c) 2008 CSLab.net  All rights reserved.";
+				exit();
 			}
-			else 
-			{
-				$input = $pieces[0] . " 0 NONE " . $pieces[3] . " " . $pieces[4];
-			}
-			//echo $input;
-			recordRemove($input);
-			echo "<hr>Copyright (c) 2008 CSLab.net  All rights reserved.";
-			exit();
-		}
+			$i = $i + 1;
 	  }
 	}
 	if (count($response) == 0)
