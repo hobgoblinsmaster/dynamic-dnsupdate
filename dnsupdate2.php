@@ -10,26 +10,29 @@ $type=$_GET[type];
 $type_value=$_GET[type_value];
 $rrnumber=$_GET[rrnumber];
 
-if ($type == "NS" || $type == "MX" )
+if ($host != NULL)
+{
+	$domain = $host . "." . $domain;
+}
+
+if ( $type == "A" || $type == "NS" || $type == "MX" || $type == "CNAME" )
 {
 	$input = $domain . ". " . $ttl . " IN " . $type . " " . $type_value;
 }
 else
 {
-	$input = $host . "." . $domain . ". " . $ttl . " IN " . $type . " " . $type_value;
+	$input = $domain . ". " . $ttl . " IN " . $type . " " . $type_value;
 }
-
 
 if ($update == 'Add')
 {
-	echo "<p>Add a Resource Record<p>";
+	echo "<h3>Add a Resource Record</h3>";
 	recordAdd($input);
-	//recordAXFR($domain);
 }
 
 if ($update == 'Delete')
 {
-	echo "<p>Delete a Resource Record<p>";
+	echo "<h3>Delete a Resource Record</h3>";
 	recordFind($host, $rrnumber);
 }
 
@@ -66,13 +69,13 @@ function recordAdd($input)
 	
 	if ($response->header->rcode == "NOERROR")
 	{
-	  echo "Update Result: Dynamic update is successful.";
+	  echo "<p>Update Result: Dynamic update is successful.</p>";
 	}
 	else if ($response->header->rcode != "NOERROR")
 	{
 	  return($response->header->rcode);
 	}
-	echo "<p><a href=./dnsupdate.php>Go back to the DNS Update</a>";
+	echo "<p><a href=./dnsupdate.php>Go back to the DNS Update</a></p>";
 	echo "<hr>Copyright (c) 2008 CSLab.net  All rights reserved.";
 
 }
@@ -131,49 +134,40 @@ function recordFind($host, $rrnumber)
 	  {
 	  	if ($i == $rrnumber)
 	  	{
-				//$rr->display();
 				$rrText = $rr->string();
 				$pieces = explode("\t", $rrText);
-				echo "0 :" . $pieces[0];
-				echo "<br>";
-				echo "1 :" . $pieces[1];
-				echo "<br>";
-				echo "2 :" . $pieces[2];
-				echo "<br>";
-				echo "3 :" . $pieces[3];
-				echo "<br>";
-				echo "4 :" . $pieces[4];
-				echo "<br>";
-				echo "5 :" . $pieces[5];
-		  	$i = $i + 1;
-			
-				if ( $pieces[3] == "CNAME" )
+
+				if ( $response[$i]->type == "A" )
 				{
-			    $pieces4 = substr_replace($pieces[4] , "", -1);
-					$input = $pieces[0] . " 0 NONE " . $pieces[3] . " " . $pieces4;
-					echo "<br>";
-					echo $input;
+					//$rrDelete =& Net_DNS_RR::factory("www3.freeserver.kr. 0 NONE A 192.168.0.1");
+			    //$pieces4 = substr_replace($pieces[4] , "", -1);
+					$input = $response[$i]->name . " 0 NONE A " . $response[$i]->address;
+					echo "<p>Query: " . $input . "</p>";
 				}
-				else if ( $pieces[4] == "NS" )
+				else if ( $response[$i]->type == "NS" )
 				{
-			    $pieces5 = substr_replace($pieces[5] , "", -1);
-					$input = $pieces[0] . " 0 NONE " . $pieces[4] . " " . $pieces5;
-					echo "<br>";
-					echo $input;
+			    //$pieces5 = substr_replace($pieces[5] , "", -1);
+					$input = $response[$i]->name . " 0 NONE NS " . $response[$i]->nsdname;
+					echo "<p>Query: " . $input . "</p>";
 				}
 				else if ( $pieces[4] == "MX" )
 				{
 			    $pieces5 = substr_replace($pieces[5] , "", -1);
-					$input = $pieces[0] . " 0 NONE " . $pieces[4] . " " . $pieces5;
-					echo "<br>";
-					echo $input;
+					$input = $response[$i]->name . " 0 NONE MX " . $response[$i]->preference . " " . $response[$i]->exchange;
+					echo "<p>Query: " . $input . "</p>";
+				}
+				else if ( $response[$i]->type == "CNAME" )
+				{
+			    $pieces4 = substr_replace($pieces[4] , "", -1);
+					$input = $response[$i]->name . " 0 NONE CNAME " . $response[$i]->cname;
+					echo "<p>Query: " . $input . "</p>";
 				}
 				else 
 				{
-					echo "<br>";
-					$input = $pieces[0] . " 0 NONE " . $pieces[3] . " " . $pieces[4];
+					echo "<p>Not supported yet!</p>";
+					echo "<hr>Copyright (c) 2008 CSLab.net  All rights reserved.";
+					exit();
 				}
-				//echo $input;
 				recordRemove($input);
 				echo "<hr>Copyright (c) 2008 CSLab.net  All rights reserved.";
 				exit();
