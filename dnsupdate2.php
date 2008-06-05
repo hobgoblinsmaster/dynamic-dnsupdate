@@ -39,6 +39,8 @@ if ($update == 'Delete')
 /*----------------------------------------------------------------------------*/
 function recordAdd($input)
 {
+	echo "<p>Query: " . $input . "</p>";
+
 	$resolver = new Net_DNS_Resolver();
 
 	$resolver->nameservers = array('ns1.cslab.net');
@@ -64,9 +66,7 @@ function recordAdd($input)
 	$packet->header->arcount = count($packet->additional);
 
 	$response = $resolver->send_tcp($packet, $packet->data());
-	
-	
-	
+
 	if ($response->header->rcode == "NOERROR")
 	{
 	  echo "<p>Update Result: Dynamic update is successful.</p>";
@@ -77,7 +77,6 @@ function recordAdd($input)
 	}
 	echo "<p><a href=./dnsupdate.php>Go back to the DNS Update</a></p>";
 	echo "<hr>Copyright (c) 2008 CSLab.net  All rights reserved.";
-
 }
 
 /*----------------------------------------------------------------------------*/
@@ -158,7 +157,7 @@ function recordFind($host, $rrnumber)
 				}
 				else if ( $response[$i]->type == "CNAME" )
 				{
-			    $pieces4 = substr_replace($pieces[4] , "", -1);
+				    $pieces4 = substr_replace($pieces[4] , "", -1);
 					$input = $response[$i]->name . " 0 NONE CNAME " . $response[$i]->cname;
 					echo "<p>Query: " . $input . "</p>";
 				}

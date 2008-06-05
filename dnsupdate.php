@@ -23,40 +23,43 @@ $remote_ip=$_SERVER['REMOTE_ADDR'];
 	<body>
 	<table border="0" cellpadding="10" cellspacing="10">
 	<tr><td>
-		<h1>Web-based Dynamic DNS Update Program (ver 1.0)</h1>
+		<img src="http://toddand.com/blog/wp-content/uploads/2007/07/domain.jpg" border="0" alt="Image" height="100" width="300">
+		<h1>Web-based Dynamic DNS Update Program <small>(Ver. <?php echo $version; ?>)</small></h1>
 		<p>
 		This is a web-based dynamic DNS update program that can add, replace or delete DNS resource records in a master server. 
 		</p>
 		<p>
-		Project Home: <a href="http://code.google.com/p/dynamic-dnsupdate/">http://code.google.com/p/dynamic-dnsupdate/</a>
+		* Project Home: <a href="http://code.google.com/p/dynamic-dnsupdate/">http://code.google.com/p/dynamic-dnsupdate/</a>
 		</p>
 		<p>
-		Your IP address is <?php echo $remote_ip; ?>
+		* Your IP address is <b><?php echo $remote_ip; ?></b>.
 		</p>
 		<p>
-		* To Do List: Admin Login, Support for TXT RR, TSIG, Key Generator
+		* <u><b>To Do List</b></u>: Domain Navigation Dropdrop, <a href=http://www.freeserver.kr/login.php>Admin Login</a>, Support for TXT RR, TSIG, Key Generator, Multiple RRs Delete
 		</p>
-		<form method="get" action="./dnsupdate2.php" name="DynamicDNSUpdate">
-		<select name="domain1">
+		<hr>
+		<form method="get" action="./dnsupdate.php" name="DynamicDNSUpdate">
+		Domain: <select name="domain1" disabled>
 			  <option value="<?php echo $mydomain1; ?>" selected><?php echo $mydomain1; ?></option>
 			  <option value="<?php echo $mydomain2; ?>"><?php echo $mydomain2; ?></option>
 		</select>
-		<INPUT TYPE=SUBMIT VALUE="Go">
+		<INPUT name="" TYPE=SUBMIT VALUE="Go" disabled>
+		<INPUT name="key" TYPE=SUBMIT VALUE="Generate a Security Key" disabled>
 		</FORM>
-		</p>
-		<h3 style="font-family: Arial;">Add a resource record</h3>
+		<hr>
+		<h3 style="font-family: Arial;"><img src="http://hostingdocs.fast.net/images/btn_dns_bg.gif" alt="Image" align="bottom" width="20"> Add a resource record</h3>
 		<form style="font-family: Arial;" method="get" action="./dnsupdate2.php" name="DynamicDNSUpdate">
 			<table border="1" cellpadding="3" cellspacing="0">
 				<tbody>
 					<tr>
 						<td width="100"> Domain</td> 
 						<td width="400"> 
-							<input name="domain" class="box" value="freeserver.kr">
+							<input name="domain" class="box" value="freeserver.kr" disabled style='background-color: #FFFFFF;'>
 							</td>
 					</tr>
 					<tr><td> Nameserver</td> 
 						<td width="370"> 
-							<input name="nameserver" class="box" value="ns1.cslab.net" disabled="disabled"></td>
+							<input name="nameserver" class="box" value="ns1.cslab.net" disabled="disabled"  style='background-color: #FFFFFF;'></td>
 					</tr>
 					<tr><td> Host</td>
 						<td width="370"> 
@@ -84,10 +87,11 @@ $remote_ip=$_SERVER['REMOTE_ADDR'];
 				</tbody>
 			</table>
 			<br>
+			<input name="domain" style="font-weight: bold;" value="freeserver.kr" type="hidden"> 
 			<input name="update" style="font-weight: bold;" value="Add" type="submit"> 
 			<input name="update" style="font-weight: bold;" value="Cancel" type="reset">
 		</form>
-<h3> Delete a resource record</h3>
+<h3><img src="http://hostingdocs.fast.net/images/btn_dns_bg.gif" alt="Image" align="bottom" width="20"> Delete a resource record</h3>
 <form method="get" action="./dnsupdate2.php" name="DynamicDNSUpdate">
 <table border="1" cellpadding="3" cellspacing="0">
 <tr>
@@ -154,9 +158,9 @@ if (count($response))
 			echo $response[$i]->type;
 			echo "</td>";
 			echo "<td style='background-color: rgb(255, 204, 153);'>";
-			echo $response[$i]->preference;
-			echo "&nbsp;";
-			echo $response[$i]->exchange;
+			echo "Preference: <b>" . $response[$i]->preference . "</b>";
+			echo "<br>";
+			echo "Exchanger: <b>" . $response[$i]->exchange . "</b>";
 			echo "</td>";
 			echo "</tr>";
 		}
@@ -183,7 +187,7 @@ if (count($response))
 			echo $response[$i]->type;
 			echo "</td>";
 			echo "<td style='background-color: #CCFFFF;'>";
-			echo $response[$i]->nsdname;
+			echo "<b>" . $response[$i]->nsdname . "</b>";
 			echo "</td>";
 			echo "</tr>";
 		}
@@ -210,75 +214,47 @@ if (count($response))
 		else if ( ($response[$i]->type) == "SOA" )
 		{
 			echo "<tr>";
-			echo "<td style='background-color: #CCFFFF;'>";
+			echo "<td style='background-color: #99FF99;'>";
 			echo "<input name=rrnumber value=$i type=hidden disabled>N/A";
 			echo "</td>";
-			echo "<td style='background-color: #CCFFFF;'>";
+			echo "<td style='background-color: #99FF99;'>";
 			echo $response[$i]->name;
 			echo "</td>";
-			echo "<td style='background-color: #CCFFFF;'>";
+			echo "<td style='background-color: #99FF99;'>";
 			echo $response[$i]->ttl;
 			echo "</td>";
-			echo "<td style='background-color: #CCFFFF;'>";
+			echo "<td style='background-color: #99FF99;'>";
 			echo $response[$i]->type;
 			echo "</td>";
-			echo "<td style='background-color: #CCFFFF;'>";
-			echo "Serial: " . $response[$i]->serial;
+			echo "<td style='background-color: #99FF99;'>";
+			echo "Serial: <b>" . $response[$i]->serial . "</b>";
 			echo "<br>";
-			echo "Refresh: " . $response[$i]->refresh;
+			echo "Refresh: <b>" . $response[$i]->refresh . "</b>";
 			echo "<br>";
-			echo "Retry: " . $response[$i]->retry;
+			echo "Retry: <b>" . $response[$i]->retry . "</b>";
 			echo "<br>";
-			echo "Expire: " . $response[$i]->expire;
+			echo "Expire: <b>" . $response[$i]->expire . "</b>";
 			echo "<br>";
-			echo "Minimum:" . $response[$i]->minimum;
-			echo "</td>";
-			echo "</tr>";
-		}
-		else if ( ($response[$i]->type) == "SOA" )
-		{
-			echo "<tr>";
-			echo "<td style='background-color: #CCFFFF;'>";
-			echo "<input name=rrnumber value=$i type=hidden disabled>N/A";
-			echo "</td>";
-			echo "<td style='background-color: #CCFFFF;'>";
-			echo $response[$i]->name;
-			echo "</td>";
-			echo "<td style='background-color: #CCFFFF;'>";
-			echo $response[$i]->ttl;
-			echo "</td>";
-			echo "<td style='background-color: #CCFFFF;'>";
-			echo $response[$i]->type;
-			echo "</td>";
-			echo "<td style='background-color: #CCFFFF;'>";
-			echo "Serial: " . $response[$i]->serial;
-			echo "<br>";
-			echo "Refresh: " . $response[$i]->refresh;
-			echo "<br>";
-			echo "Retry: " . $response[$i]->retry;
-			echo "<br>";
-			echo "Expire: " . $response[$i]->expire;
-			echo "<br>";
-			echo "Minimum:" . $response[$i]->minimum;
+			echo "Minimum: <b>" . $response[$i]->minimum . "</b>";
 			echo "</td>";
 			echo "</tr>";
 		}
 		else if ( ($response[$i]->type) == "TXT" )
 		{
 			echo "<tr>";
-			echo "<td style='background-color: #CCFFFF;'>";
+			echo "<td style='background-color: #99FF99;'>";
 			echo "<input name=rrnumber value=$i type=checkbox>";
 			echo "</td>";
-			echo "<td style='background-color: #CCFFFF;'>";
+			echo "<td style='background-color: #99FF99;'>";
 			echo $response[$i]->name;
 			echo "</td>";
-			echo "<td style='background-color: #CCFFFF;'>";
+			echo "<td style='background-color: #99FF99;'>";
 			echo $response[$i]->ttl;
 			echo "</td>";
-			echo "<td style='background-color: #CCFFFF;'>";
+			echo "<td style='background-color: #99FF99;'>";
 			echo $response[$i]->type;
 			echo "</td>";
-			echo "<td style='background-color: #CCFFFF;'>";
+			echo "<td style='background-color: #99FF99;'>";
 			echo $response[$i]->text[0];
 			echo $response[$i]->text[1];
 			echo $response[$i]->text[2];
@@ -320,8 +296,9 @@ if (count($response))
 //print_r($response);
 ?>
 </pre>
-<hr>Copyright (c) <?php ECHO date("Y"); ?> CSLab.net (Jaeyoun Kim) All rights reserved.
+<hr>
 <p>
+<?php echo $copyright; ?>
 </p>
 </td></tr>
 </table>
