@@ -130,7 +130,7 @@ $command=$_GET[command];
 					<td width="200">Domain</td> 
 					<td width="120">TTL (Time-To-Live)</td> 
 					<td width="80">Type</td> 
-					<td width="250">Address</td>
+					<td width="250">Value</td>
 				</tr>
 <?php 
 include 'Net/DNS.php';
