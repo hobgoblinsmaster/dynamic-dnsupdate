@@ -73,16 +73,9 @@ function recordAdd($domain, $input)
 	$packet->header->qr = 0;
 	$packet->header->opcode = "UPDATE";
 	// opcode - http://www.networksorcery.com/enp/protocol/dns.htm
-	
+
 	$packet->question[0] = new Net_DNS_Question($domain, "SOA", "IN");
 	$packet->answer = array();
-	
-	// Add a resource record by adding the RR to the update section.
-	//$str = array(0=>"freeserver.kr",1=>"60",3=>"IN",4=>"TXT",5=>"v=spf1 a mx a:ripple ip4:211.208.163.118 ~all");
-	$str = "freeserver.kr 60 IN TXT v=spf1 a mx a:ripple ip4:211.208.163.118 -all";
-
-	//$ADDrr =& Net_DNS_RR::factory($str, "TXT");
-	//$packet->authority[0] = $ADDrr; // Authority is the update section
 	
 	$rrAdd =& Net_DNS_RR::factory($input);
 	$packet->authority[0] = $rrAdd;
@@ -102,7 +95,7 @@ function recordAdd($domain, $input)
 	{
 	  return($response->header->rcode);
 	}
-	echo "<p><a href=./dnsupdate.php>Go back to the DNS Update</a></p>";
+	echo "<p><a href=./dnsupdate.php?domain=$domain>Go back to the DNS Update</a></p>";
 	echo "<hr><p class=copyright>$copyright;</p>";
 	//recordAXFR($domain);
 }

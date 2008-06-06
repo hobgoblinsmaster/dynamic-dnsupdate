@@ -23,21 +23,16 @@ $command=$_GET[command];
 		<link rel="stylesheet" href="style.css">
 	</head>
 	<body> 
-		<img src="./images/domain.jpg" border="0" alt="Image" height="100" width="300"><h1>Web-based Dynamic DNS Update Program</h1>
-		<p class="version">Ver. 
-			<?php echo $version; ?>
+		<a href="http://code.google.com/p/dynamic-dnsupdate/"><img src="./images/domain.jpg" border="0" alt="Image" height="100" width="300"></a>
+		<h1>Web-based Dynamic DNS Update Program</h1>
+		<p class="version">
+		<i>Project Homepage: <a href="http://code.google.com/p/dynamic-dnsupdate/"><?php echo $version; ?></a></i>
 		</p>
 		<p> This is a web-based dynamic DNS update program that can add, replace or delete DNS resource records in a master server.
 		</p>
-		<ul>
-			<li>
-			Project Home: 
-			<a href="http://code.google.com/p/dynamic-dnsupdate/">http://code.google.com/p/dynamic-dnsupdate/</a>
-			</li> 
-			<li>
-			Your IP address is <b> <?php echo $remote_ip; ?></b>.
-			</li> 
-		</ul>
+		<p> 
+		Your IP address:<b> <?php echo $remote_ip; ?></b>.
+		</p>
 		<form method="get" action="./dnsupdate.php" name="DynamicDNSUpdate">
 			<hr>
 			Domain name: 
