@@ -104,7 +104,7 @@ function recordAdd($domain, $input)
 	}
 	echo "<p><a href=./dnsupdate.php>Go back to the DNS Update</a></p>";
 	echo "<hr><p class=copyright>$copyright;</p>";
-	recordAXFR($domain);
+	//recordAXFR($domain);
 }
 /*----------------------------------------------------------------------------*/
 function recordRemove($domain, $input)
@@ -177,7 +177,7 @@ function recordFind($domain, $rrnumber)
 	  	{
 				if ( $response[$i]->type == "A" )
 				{
-					echo $response[$i]->display();
+					//echo $response[$i]->display();
 					$input = $response[$i]->name . " 0 NONE A " . $response[$i]->address;
 					echo "<p>Query: " . $input . "</p>";
 				}
@@ -215,7 +215,7 @@ function recordFind($domain, $rrnumber)
 	}
 	if (count($response) == 0)
 	{
-  	echo "AXFR Failed";
+  	echo "<p>AXFR Failed</p>";
  	}
 }
 /*----------------------------------------------------------------------------*/
@@ -236,4 +236,6 @@ function recordAXFR($domain)
 	  }
 	}
 	echo "</pre>";
-} /*----------------------------------------------------------------------------*/ ?>
+}
+/*----------------------------------------------------------------------------*/
+?>
