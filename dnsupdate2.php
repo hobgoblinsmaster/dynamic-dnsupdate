@@ -39,9 +39,9 @@ if ( $type == "A" || $type == "NS" || $type == "MX" || $type == "CNAME" )
 if ( $type == "TXT" )
 {
 	$type_value = str_replace("\\", "", $type_value);
-	echo $type_value;
-	echo "<br>";
-	$input = $domain2 . ". " . $ttl . " IN " . $type . " \"" . $type_value . "\"";
+	//echo $type_value;
+	//echo "<br>";
+	$input = $domain2 . ". " . $ttl . " IN " . $type . " " . $type_value . " ";
 }
 else
 {
@@ -63,18 +63,24 @@ function recordAdd($domain, $input)
 	include './config.php';
 
 	echo "<p>Query: " . $input . "</p>";
+
 	$resolver = new Net_DNS_Resolver();
+
 	$resolver->nameservers = array($ns1);
+
 	$packet = new Net_DNS_Packet();
+
 	$packet->header = new Net_DNS_Header();
 	$packet->header->id = $resolver->nextid();
 	$packet->header->qr = 0;
+	// http://www.networksorcery.com/enp/protocol/dns.htm
 	$packet->header->opcode = "UPDATE";
 	
 	$packet->question[0] = new Net_DNS_Question($domain, "SOA", "IN");
 	$packet->answer = array();
 	
 	//$rrAdd =& Net_DNS_RR::factory("www1.freeserver.kr. 60 IN A 192.168.0.1");
+	//$rrAdd =& Net_DNS_RR::new_from_data( $name, $rrtype, $rrclass, $ttl, $rdlength, $data, $offset)
 	$rrAdd =& Net_DNS_RR::factory($input);
 
 	$packet->authority[0] = $rrAdd;
@@ -103,21 +109,31 @@ function recordRemove($domain, $input)
 	include './config.php';
 
 	$resolver = new Net_DNS_Resolver();
+
 	$resolver->nameservers = array($ns1);
+
 	$packet = new Net_DNS_Packet();
+
 	$packet->header = new Net_DNS_Header();
 	$packet->header->id = $resolver->nextid();
 	$packet->header->qr = 0;
 	$packet->header->opcode = "UPDATE";
+
 	$packet->question[0] = new Net_DNS_Question($domain, "SOA", "IN");
 	$packet->answer = array();
+
 	$rrDelete =& Net_DNS_RR::factory($input);
 	//$rrDelete =& Net_DNS_RR::factory("test1.freeserver.kr. 0 NONE A 192.168.0.1");
+
 	$packet->authority[0] = $rrDelete;
+
 	$packet->header->qdcount = count($packet->question);
 	$packet->header->ancount = count($packet->answer);
 	$packet->header->nscount = count($packet->authority);
 	$packet->header->arcount = count($packet->additional);
+
+	// send_tcp - Sends a packet via TCP to the list of name servers.
+	// object Net_DNS_Packet send_tcp( string $packet, string $packet_data)
 	$response = $resolver->send_tcp($packet, $packet->data());
 	
 	if ($response->header->rcode == "NOERROR")
@@ -137,9 +153,13 @@ function recordFind($domain, $rrnumber)
 	include './config.php';
 
 	$resolver = new Net_DNS_Resolver();
+
 	$resolver->debug = 0;
+
 	$response = $resolver->axfr($domain);
+
 	$i = 0;
+
 	if (count($response)) 
 	{
 	  foreach ($response as $rr) 

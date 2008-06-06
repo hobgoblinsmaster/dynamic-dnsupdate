@@ -16,12 +16,9 @@ include './config.php';
 			<?php echo $version; ?>
 		</p>
 		<p>You can update DNS entries with either of these two command lines in Linux. 
-		</p>
-		<p>USERID is your domain name without a period (eg. If your domain is freeserver.kr, your USERID is freeserverkr.)
-		</p>
 		<ul>
-			<li>wget -O - --http-user=<B>USERID</B> --http-passwd=<B>AUTHCODE</B> 'http://cslab.net/dnsupdate/dynamic.php?domain=freeserver.kr&host=test1&ttl=60&type=A&type_value=192.168.0.1'</li>
-			<li>lynx -source -auth=<B>USERID:AUTHCODE</B> 'http://cslab.net/dnsupdate/dynamic.php?domain=freeserver.kr&host=test1&ttl=60&type=A&type_value=192.168.0.1'</li>
+			<li>wget -O - --http-user=dnsupdate --http-passwd=<B>AUTHCODE</B> 'http://cslab.net/dnsupdate/dynamic.php?domain=freeserver.kr&host=test1&ttl=60&type=A&type_value=192.168.0.1'</li>
+			<li>lynx -source -auth=dnsupdate:<B>AUTHCODE</B> 'http://cslab.net/dnsupdate/dynamic.php?domain=freeserver.kr&host=test1&ttl=60&type=A&type_value=192.168.0.1'</li>
 		</ul>
 		<p> 
 		</p>

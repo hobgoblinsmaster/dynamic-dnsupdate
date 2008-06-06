@@ -29,13 +29,18 @@ $command=$_GET[command];
 		</p>
 		<p> This is a web-based dynamic DNS update program that can add, replace or delete DNS resource records in a master server.
 		</p>
-		<p> * Project Home: 
-			<a href="http://code.google.com/p/dynamic-dnsupdate/">http://code.google.com/p/dynamic-dnsupdate/</a> 
-			<br> * Your IP address is <b>
-				<?php echo $remote_ip; ?></b>.
-		</p>
+		<ul>
+			<li>
+			Project Home: 
+			<a href="http://code.google.com/p/dynamic-dnsupdate/">http://code.google.com/p/dynamic-dnsupdate/</a>
+			</li> 
+			<li>
+			Your IP address is <b> <?php echo $remote_ip; ?></b>.
+			</li> 
+		</ul>
 		<form method="get" action="./dnsupdate.php" name="DynamicDNSUpdate">
-			<hr> Domain: 
+			<hr>
+			Domain name: 
 			<select name="domain"> 
 				<option <?php if ($domain == $mydomain1) { echo "selected"; } ?> value="<?php echo $mydomain1; ?>">
 				<?php echo $mydomain1; ?>
@@ -51,25 +56,32 @@ $command=$_GET[command];
 <?php
 		if ($command == "Authcode")
 		{
+
 			// http://www.z-host.com/scripts/ipasswd/
 			$salt = str_replace(".", "", $domain);
+
 			// Password to be encrypted for a .htpasswd file
 			$clearTextPassword = $salt;
+
 			// Encrypt password
 			$password = crypt($clearTextPassword, base64_encode($clearTextPassword));
-			echo "Your auth code is " . $password;
+
+			// Encrypt password Again
 			$password2 = crypt($password, base64_encode($password));
+
+			echo "Your auth code is <strong>" . $password . "</strong>";
+
 			$file = '/home/cslab/public_html/dnsupdate/.htpasswd';
 			$file_contents = file_get_contents($file);
 			$fh = fopen($file, "w");
-			$file_contents = $salt . ":" . $password2;
+			$file_contents = "dnsupdate:" . $password2;
 			fwrite($fh, $file_contents);
 			fclose($fh);
 		}
 ?>
 		<hr>
 		<h3 style="font-family: Arial;">
-			<img src="http://hostingdocs.fast.net/images/btn_dns_bg.gif" alt="Image" align="bottom" width="20"> Add a resource record</h3>
+			<img src="./images/btn_dns_bg.gif" alt="Image" align="bottom" width="20"> Add a resource record</h3>
 		<form style="font-family: Arial;" method="get" action="./dnsupdate2.php" name="DynamicDNSUpdate">
 			<table border="1" cellpadding="3" cellspacing="0">
 				<tbody>
@@ -95,11 +107,11 @@ $command=$_GET[command];
 					</tr>
 					<tr><td> Type</td> 
 						<td width="370"> 
-							<input name="type" value="A" checked="checked" type="radio">A 
+							<input name="type" value="A" type="radio" checked>A 
 							<input name="type" value="CNAME" type="radio">CNAME 
 							<input name="type" value="NS" type="radio">NS 
 							<input name="type" value="MX" type="radio">MX 
-							<input name="type" value="TXT" type="radio" disabled>TXT </td>
+							<input name="type" value="TXT" type="radio" >TXT </td>
 					</tr>
 					<tr><td> Type Value&nbsp;</td><td> 
 							<input name="type_value" class="box" value="192.168.0.1" type="text"></td>
@@ -111,7 +123,7 @@ $command=$_GET[command];
 			<input name="command" style="font-weight: bold;" value="Add" type="submit"> 
 			<input name="command" style="font-weight: bold;" value="Cancel" type="reset">
 		</form><h3>
-			<img src="http://hostingdocs.fast.net/images/btn_dns_bg.gif" alt="Image" align="bottom" width="20"> Delete a resource record</h3>
+			<img src="./images/btn_dns_bg.gif" alt="Image" align="bottom" width="20"> Delete a resource record</h3>
 		<form method="get" action="./dnsupdate2.php" name="DynamicDNSUpdate">
 			<table border="1" cellpadding="3" cellspacing="0">
 				<tr> <td>Check</td> 
