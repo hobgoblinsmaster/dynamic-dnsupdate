@@ -1,17 +1,36 @@
+<?php
+include './config.php';
+?>
 <html>
 	<head>
-		<title>Authcode
+		<title>Web-based Dynamic DNS Update | Authcode
 		</title>
 		<meta http-equiv="Content-Type" content="text/html; charset=utf-8">
 		<meta http-equiv="Cache-Control" content="no-cache, must-revalidate">
 		<link rel="stylesheet" href="style.css">
 	</head>
 	<body> 
-		<br> 
+		<img src="./images/domain.jpg" border="0" alt="Image" height="100" width="300">
+		<h1>Web-based Dynamic DNS Update Program - Authcode</h1>
+		<p class="version">Ver. 
+			<?php echo $version; ?>
+		</p>
+		<p>You can update DNS entries with either of these two command lines in Linux. 
+		</p>
+		<p>USERID is your domain name without a period (eg. If your domain is freeserver.kr, your USERID is freeserverkr.)
+		</p>
+		<ul>
+			<li>wget -O - --http-user=<B>USERID</B> --http-passwd=<B>AUTHCODE</B> 'http://cslab.net/dnsupdate/dynamic.php?domain=freeserver.kr&host=test1&ttl=60&type=A&type_value=192.168.0.1'</li>
+			<li>lynx -source -auth=<B>USERID:AUTHCODE</B> 'http://cslab.net/dnsupdate/dynamic.php?domain=freeserver.kr&host=test1&ttl=60&type=A&type_value=192.168.0.1'</li>
+		</ul>
+		<p> 
+		</p>
+		<hr>
+		<p class="copyright">
+			<?php echo $copyright; ?>
+		</p> 
 		<br> 
 		<br> 
 		<br>
-		<p> wget -O - --http-user=<B>USERID</B> --http-passwd=<B>AUTHCODE</B> "http://cslab.net/dnsupdate/dynamic.php?domain=freeserver.kr&host=test1&ttl=60&type=A&type_value=192.168.0.1"
-		</p>
 	</body>
 </html>

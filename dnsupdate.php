@@ -7,10 +7,12 @@
 // @date: June 1, 2008
 //------------------------------------------------------------------------------
 include './config.php';
+
 // http://www.php.net/manual/en/reserved.variables.php
 $remote_ip=$_SERVER['REMOTE_ADDR'];
 $domain=$_GET[domain];
 $command=$_GET[command];
+
 ?>
 <html>
 	<head>
@@ -64,7 +66,7 @@ $command=$_GET[command];
 			fwrite($fh, $file_contents);
 			fclose($fh);
 		}
-				?>
+?>
 		<hr>
 		<h3 style="font-family: Arial;">
 			<img src="http://hostingdocs.fast.net/images/btn_dns_bg.gif" alt="Image" align="bottom" width="20"> Add a resource record</h3>
@@ -74,11 +76,11 @@ $command=$_GET[command];
 					<tr> 
 						<td width="100"> Domain</td> 
 						<td width="400"> 
-							<input name="domain" class="box" value="<?php if ($domain == NULL) { echo $mydomain1; } else { echo $domain; } ?>" disabled style='background-color: #FFFFFF;'></td>
+							<input name="domain" class="box" value="<?php if ($domain == NULL) { echo $mydomain1; } else { echo $domain; } ?>" disabled></td>
 					</tr>
 					<tr><td> Nameserver</td> 
 						<td width="370"> 
-							<input name="nameserver" class="box" value="<?php echo $ns1; ?>" disabled="disabled"  style='background-color: #FFFFFF;'></td>
+							<input name="nameserver" class="box" value="<?php echo $ns1; ?>" disabled></td>
 					</tr>
 					<tr><td> Host</td> 
 						<td width="370"> 
@@ -97,7 +99,7 @@ $command=$_GET[command];
 							<input name="type" value="CNAME" type="radio">CNAME 
 							<input name="type" value="NS" type="radio">NS 
 							<input name="type" value="MX" type="radio">MX 
-							<input name="type" value="TXT" type="radio">TXT </td>
+							<input name="type" value="TXT" type="radio" disabled>TXT </td>
 					</tr>
 					<tr><td> Type Value&nbsp;</td><td> 
 							<input name="type_value" class="box" value="192.168.0.1" type="text"></td>
@@ -333,5 +335,14 @@ function md5key($domain)
 		<br> 
 		<br> 
 		<br>
+<script type="text/javascript">
+var gaJsHost = (("https:" == document.location.protocol) ? "https://ssl." : "http://www.");
+document.write(unescape("%3Cscript src='" + gaJsHost + "google-analytics.com/ga.js' type='text/javascript'%3E%3C/script%3E"));
+</script>
+<script type="text/javascript">
+var pageTracker = _gat._getTracker("UA-4194094-3");
+pageTracker._initData();
+pageTracker._trackPageview();
+</script>
 	</body>
 </html>

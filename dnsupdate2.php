@@ -6,6 +6,9 @@
 // @version: 1.0
 // @date: June 1, 2008
 //------------------------------------------------------------------------------
+
+include './config.php';
+
 ?>
 <html>
 	<head>
@@ -18,7 +21,6 @@
 	<body>
 <?php
 include 'Net/DNS.php';
-include './config.php';
 $domain=$_GET[domain];
 $command=$_GET[command];
 $host=$_GET[host];
@@ -33,6 +35,13 @@ if ($host != NULL)
 if ( $type == "A" || $type == "NS" || $type == "MX" || $type == "CNAME" )
 {
 	$input = $domain2 . ". " . $ttl . " IN " . $type . " " . $type_value;
+}
+if ( $type == "TXT" )
+{
+	$type_value = str_replace("\\", "", $type_value);
+	echo $type_value;
+	echo "<br>";
+	$input = $domain2 . ". " . $ttl . " IN " . $type . " \"" . $type_value . "\"";
 }
 else
 {
@@ -52,6 +61,7 @@ if ($command == 'Delete')
 function recordAdd($domain, $input)
 {
 	include './config.php';
+
 	echo "<p>Query: " . $input . "</p>";
 	$resolver = new Net_DNS_Resolver();
 	$resolver->nameservers = array($ns1);
@@ -66,12 +76,16 @@ function recordAdd($domain, $input)
 	
 	//$rrAdd =& Net_DNS_RR::factory("www1.freeserver.kr. 60 IN A 192.168.0.1");
 	$rrAdd =& Net_DNS_RR::factory($input);
+
 	$packet->authority[0] = $rrAdd;
+
 	$packet->header->qdcount = count($packet->question);
 	$packet->header->ancount = count($packet->answer);
 	$packet->header->nscount = count($packet->authority);
 	$packet->header->arcount = count($packet->additional);
+
 	$response = $resolver->send_tcp($packet, $packet->data());
+
 	if ($response->header->rcode == "NOERROR")
 	{
 	  echo "<p>Update Result: Dynamic update is successful.</p>";
@@ -87,6 +101,7 @@ function recordAdd($domain, $input)
 function recordRemove($domain, $input)
 {
 	include './config.php';
+
 	$resolver = new Net_DNS_Resolver();
 	$resolver->nameservers = array($ns1);
 	$packet = new Net_DNS_Packet();
@@ -119,6 +134,8 @@ function recordRemove($domain, $input)
 /*----------------------------------------------------------------------------*/
 function recordFind($domain, $rrnumber)
 {
+	include './config.php';
+
 	$resolver = new Net_DNS_Resolver();
 	$resolver->debug = 0;
 	$response = $resolver->axfr($domain);
@@ -149,6 +166,11 @@ function recordFind($domain, $rrnumber)
 					$input = $response[$i]->name . " 0 NONE CNAME " . $response[$i]->cname;
 					echo "<p>Query: " . $input . "</p>";
 				}
+				else if ( $response[$i]->type == "TXT" )
+				{
+					$input = $response[$i]->name . " 0 NONE TXT " . $response[$i]->text[0];
+					echo "<p>Query: " . $input . "</p>";
+				}
 				else 
 				{
 					echo "<p>Not supported yet!</p>";
@@ -156,7 +178,6 @@ function recordFind($domain, $rrnumber)
 					exit();
 				}
 				recordRemove($domain, $input);
-				echo "<hr><p class=copyright>$copyright;</p>";
 				exit();
 			}
 			$i = $i + 1;
@@ -184,5 +205,5 @@ function recordAXFR($domain)
 			$rr->display();
 	  }
 	}
-	echo "</pre>"
-		} /*----------------------------------------------------------------------------*/ ?>
+	echo "</pre>";
+} /*----------------------------------------------------------------------------*/ ?>
