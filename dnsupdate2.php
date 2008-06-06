@@ -5,6 +5,7 @@
 // @homepage: http://code.google.com/p/dynamic-dnsupdate/
 // @version: 1.0
 // @date: June 1, 2008
+// /usr/local/lib/php/Net/DNS/RR
 //------------------------------------------------------------------------------
 
 include './config.php';
@@ -28,25 +29,25 @@ $ttl=$_GET[ttl];
 $type=$_GET[type];
 $type_value=$_GET[type_value];
 $rrnumber=$_GET[rrnumber];
+
 if ($host != NULL)
 {
 	$domain2 = $host . "." . $domain;
 }
-if ( $type == "A" || $type == "NS" || $type == "MX" || $type == "CNAME" )
+else
+{
+	$domain2 = $domain;
+}
+
+if ( $type == "A" || $type == "NS" || $type == "MX" || $type == "CNAME" || $type == "TXT" )
 {
 	$input = $domain2 . ". " . $ttl . " IN " . $type . " " . $type_value;
-}
-if ( $type == "TXT" )
-{
-	$type_value = str_replace("\\", "", $type_value);
-	//echo $type_value;
-	//echo "<br>";
-	$input = $domain2 . ". " . $ttl . " IN " . $type . " " . $type_value . " ";
 }
 else
 {
 	$input = $domain2 . ". " . $ttl . " IN " . $type . " " . $type_value;
 }
+
 if ($command == 'Add')
 {
 	echo "<h3>Add a Resource Record</h3>";
@@ -65,24 +66,26 @@ function recordAdd($domain, $input)
 	echo "<p>Query: " . $input . "</p>";
 
 	$resolver = new Net_DNS_Resolver();
-
 	$resolver->nameservers = array($ns1);
-
 	$packet = new Net_DNS_Packet();
 
 	$packet->header = new Net_DNS_Header();
 	$packet->header->id = $resolver->nextid();
 	$packet->header->qr = 0;
-	// http://www.networksorcery.com/enp/protocol/dns.htm
 	$packet->header->opcode = "UPDATE";
+	// opcode - http://www.networksorcery.com/enp/protocol/dns.htm
 	
 	$packet->question[0] = new Net_DNS_Question($domain, "SOA", "IN");
 	$packet->answer = array();
 	
-	//$rrAdd =& Net_DNS_RR::factory("www1.freeserver.kr. 60 IN A 192.168.0.1");
-	//$rrAdd =& Net_DNS_RR::new_from_data( $name, $rrtype, $rrclass, $ttl, $rdlength, $data, $offset)
-	$rrAdd =& Net_DNS_RR::factory($input);
+	// Add a resource record by adding the RR to the update section.
+	//$str = array(0=>"freeserver.kr",1=>"60",3=>"IN",4=>"TXT",5=>"v=spf1 a mx a:ripple ip4:211.208.163.118 ~all");
+	$str = "freeserver.kr 60 IN TXT v=spf1 a mx a:ripple ip4:211.208.163.118 -all";
 
+	//$ADDrr =& Net_DNS_RR::factory($str, "TXT");
+	//$packet->authority[0] = $ADDrr; // Authority is the update section
+	
+	$rrAdd =& Net_DNS_RR::factory($input);
 	$packet->authority[0] = $rrAdd;
 
 	$packet->header->qdcount = count($packet->question);
@@ -102,6 +105,7 @@ function recordAdd($domain, $input)
 	}
 	echo "<p><a href=./dnsupdate.php>Go back to the DNS Update</a></p>";
 	echo "<hr><p class=copyright>$copyright;</p>";
+	recordAXFR($domain);
 }
 /*----------------------------------------------------------------------------*/
 function recordRemove($domain, $input)
@@ -118,13 +122,19 @@ function recordRemove($domain, $input)
 	$packet->header->id = $resolver->nextid();
 	$packet->header->qr = 0;
 	$packet->header->opcode = "UPDATE";
-
 	$packet->question[0] = new Net_DNS_Question($domain, "SOA", "IN");
 	$packet->answer = array();
+	
+	// Delete a resource record by setting the ttl to 0 and the class
+	// to "NONE".  Add the RR object to the authority/update section
+	//$DELrr = new Net_DNS_RR("freeserver.kr 60 IN TXT v=spf1 a mx a:ripple ip4:211.208.163.118 ~all");
+	//$DELrr = new Net_DNS_RR("www.example.com 3600 IN A 192.168.0.1");
+	//$DELrr->ttl = 0;
+	//$DELrr->class = "NONE";
+	//$packet->authority[0] = $DELrr; // Authority is the update section
 
-	$rrDelete =& Net_DNS_RR::factory($input);
 	//$rrDelete =& Net_DNS_RR::factory("test1.freeserver.kr. 0 NONE A 192.168.0.1");
-
+	$rrDelete =& Net_DNS_RR::factory($input);
 	$packet->authority[0] = $rrDelete;
 
 	$packet->header->qdcount = count($packet->question);
@@ -168,6 +178,7 @@ function recordFind($domain, $rrnumber)
 	  	{
 				if ( $response[$i]->type == "A" )
 				{
+					echo $response[$i]->display();
 					$input = $response[$i]->name . " 0 NONE A " . $response[$i]->address;
 					echo "<p>Query: " . $input . "</p>";
 				}
@@ -176,7 +187,7 @@ function recordFind($domain, $rrnumber)
 					$input = $response[$i]->name . " 0 NONE NS " . $response[$i]->nsdname;
 					echo "<p>Query: " . $input . "</p>";
 				}
-				else if ( $pieces[4] == "MX" )
+				else if ( $response[$i]->type == "MX" )
 				{
 					$input = $response[$i]->name . " 0 NONE MX " . $response[$i]->preference . " " . $response[$i]->exchange;
 					echo "<p>Query: " . $input . "</p>";
@@ -212,12 +223,12 @@ function recordFind($domain, $rrnumber)
 function recordAXFR($domain)
 {
 	$resolver1 = new Net_DNS_Resolver();
-	// debug output (0 : disalbe, 1 : enable)
 	$resolver1->debug = 0;
 	
-	$response = $resolver1->axfr($host);
+	$response = $resolver1->axfr($domain);
 	echo "<p>Asynchronous Full Transfer Zone</p>";
 	echo "<pre>";
+	//print_r($response);
 	if (count($response)) 
 	{
 	  foreach ($response as $rr) 

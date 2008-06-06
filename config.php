@@ -8,8 +8,8 @@ $mydomain2='freeserver.kr';
 $ns1='ns1.cslab.net';
 
 // Version Information
-$version='20080606 Rev.11';
+$version='20080606 Rev.2';
 
 // Copyright
-$copyright='Copyright (c) 2008 <B><U>CompSci Laboratory Network</U></B> (CSLab.net) All rights reserved.';
+$copyright='&copy; 2008 <U>CS Laboratory Network (CSLab.net)</U> - Jaeyoun Kim (김재연)  All rights reserved.';
 ?>
