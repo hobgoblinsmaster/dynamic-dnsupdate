@@ -34,7 +34,7 @@ $command=$_GET[command];
 		Your IP address:<b> <?php echo $remote_ip; ?></b>.
 		</p>
 		<form method="get" action="./dnsupdate.php" name="DynamicDNSUpdate">
-			<hr>
+			<hr align="left" width="600">
 			Domain name: 
 			<select name="domain"> 
 				<option <?php if ($domain == $mydomain1) { echo "selected"; } ?> value="<?php echo $mydomain1; ?>">
@@ -74,7 +74,6 @@ $command=$_GET[command];
 			fclose($fh);
 		}
 ?>
-		<hr>
 		<h3 style="font-family: Arial;">
 			<img src="./images/btn_dns_bg.gif" alt="Image" align="bottom" width="20"> Add a resource record</h3>
 		<form style="font-family: Arial;" method="get" action="./dnsupdate2.php" name="DynamicDNSUpdate">
