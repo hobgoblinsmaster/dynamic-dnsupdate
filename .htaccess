@@ -1,0 +1,29 @@
+<FilesMatch "\.(php)$"> 
+php_value short_open_tag "Off"
+php_value auto_append_file "/home/cslab/public_html/dnsupdate/count.php"
+</FilesMatch>
+ 
+<Files dynamic.php>
+Order deny,allow
+Deny from all
+#Allow from 192.168.
+AuthName "Protected area: Enter valid id and password"
+AuthType Basic
+Satisfy any
+AuthUserFile /home/cslab/public_html/dnsupdate/.htpasswd
+AuthGroupFile /dev/null
+require valid-user
+</Files> 
+
+<Files "dns*.php">
+Order deny,allow
+Deny from all
+#Allow from 192.168.
+AuthName "Protected area: Enter valid id and password"
+AuthType Basic
+Satisfy any
+AuthUserFile /home/cslab/public_html/dnsupdate/.htpasswd2
+AuthGroupFile /dev/null
+require valid-user
+</Files> 
+
