@@ -15,7 +15,10 @@ include './config.php';
 		<p class="version">Ver. 
 			<?php echo $version; ?>
 		</p>
-		<p>You can update DNS entries with either of these two command lines in Linux. 
+		<p>
+		The authcode is used by DNS administrator when using command-line tools (wget, lynx) to change DNS resource records.
+		</p>
+		<p>You can update DNS entries with either of these two command lines in Linux.
 		<ul>
 			<li>wget -O - --http-user=dnsupdate --http-passwd=<B>AUTHCODE</B> 'http://cslab.net/dnsupdate/dynamic.php?domain=freeserver.kr&host=test1&ttl=60&type=A&type_value=192.168.0.1'</li>
 			<li>lynx -source -auth=dnsupdate:<B>AUTHCODE</B> 'http://cslab.net/dnsupdate/dynamic.php?domain=freeserver.kr&host=test1&ttl=60&type=A&type_value=192.168.0.1'</li>

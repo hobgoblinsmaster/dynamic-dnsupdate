@@ -5,7 +5,6 @@
 // @homepage: http://code.google.com/p/dynamic-dnsupdate/
 // @version: 1.0
 // @date: June 1, 2008
-// /usr/local/lib/php/Net/DNS/RR
 //------------------------------------------------------------------------------
 
 include './config.php';
