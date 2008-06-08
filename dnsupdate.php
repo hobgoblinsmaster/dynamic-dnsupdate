@@ -129,6 +129,8 @@ $command=$_GET[command];
 <?php 
 include 'Net/DNS.php';
 $resolver = new Net_DNS_Resolver();
+$resolver->nameservers = array( $ns1 );
+
 // debug output (0 : disalbe, 1 : enable)
 $resolver->debug = 0;
 if ($domain == NULL) 
@@ -149,14 +151,7 @@ if (count($response))
 		{
 			echo "<tr>";
 			echo "<td style='background-color: rgb(255, 255, 204);'>";
-			if ($response[$i]->address == "211.208.163.118")
-			{
-			echo "<input name=rrnumber value=$i type=checkbox disabled>";
-			}
-			else
-			{
 			echo "<input name=rrnumber value=$i type=checkbox>";
-			}
 			echo "</td>";
 			echo "<td style='background-color: rgb(255, 255, 204);'>";
 			echo $response[$i]->name;
@@ -199,14 +194,7 @@ if (count($response))
 		{
 			echo "<tr>";
 			echo "<td style='background-color: #CCFFFF;'>";
-			if ($response[$i]->nsdname == "ns1.cslab.net")
-			{
-			echo "<input name=rrnumber value=$i type=checkbox disabled>";
-			}
-			else
-			{
 			echo "<input name=rrnumber value=$i type=checkbox>";
-			}
 			echo "</td>";
 			echo "<td style='background-color: #CCFFFF;'>";
 			echo $response[$i]->name;

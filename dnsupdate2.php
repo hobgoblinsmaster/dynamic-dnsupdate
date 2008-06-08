@@ -155,7 +155,7 @@ function recordFind($domain, $rrnumber)
 	include './config.php';
 
 	$resolver = new Net_DNS_Resolver();
-
+	$resolver->nameservers = array( $ns1 );
 	$resolver->debug = 0;
 
 	$response = $resolver->axfr($domain);
