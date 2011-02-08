@@ -10,6 +10,10 @@ font-family : Arial;
 font-size : 10pt; 
 }
 
+img {
+	border: 0px;
+}
+
 .version
 {
 font-family : Arial;
