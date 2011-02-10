@@ -1,31 +1,93 @@
 <?php
 //------------------------------------------------------------------------------
 // Web-based Dynamic DNS Update
-// @author: Jaeyoun Kim
+// @author: Jaeyoun Kim & Calyce.fr
 // @homepage: http://code.google.com/p/dynamic-dnsupdate/
-// @version: 1.0
-// @date: June 1, 2008
+// @version: 1.1
+// @date: Fev 2, 2011
 //------------------------------------------------------------------------------
 include './config.php';
 
-// http://www.php.net/manual/en/reserved.variables.php
+// http://pear.php.net/manual/fr/package.networking.net-dns.php
+
 $remote_ip=$_SERVER['REMOTE_ADDR'];
-$domain=$_GET[domain];
-$command=$_GET[command];
+if (isset($_GET['domain']) && $_GET['domain'] != 'NULL')
+	$domain=$_GET['domain'];
+else
+	$domain=NULL;
+if (isset($_GET['command']))
+	$command=$_GET['command'];
+else
+	$command=NULL;
 
 ?>
-<html>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+    "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd"> 
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en"> 
 	<head>
-		<title>Web-based Dynamic DNS Update
-		</title>
-		<meta http-equiv="Content-Type" content="text/html; charset=utf-8">
-		<meta http-equiv="Cache-Control" content="no-cache, must-revalidate">
-		<link rel="stylesheet" href="style.css">
+		<title>Web-based Dynamic DNS Update</title>
+		<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+		<meta http-equiv="Cache-Control" content="no-cache, must-revalidate" />
+		<link rel="stylesheet" href="style.css" />
+		<script type="text/javascript">
+		// <![CDATA[
+			function PrintId(baliseId)
+			{
+				if (document.getElementById && document.getElementById(baliseId) != null)
+				{
+					document.getElementById(baliseId).style.visibility='visible';
+					document.getElementById(baliseId).style.display='block';
+				}
+			}
+
+			function HideId(baliseId)
+			{
+				if (document.getElementById && document.getElementById(baliseId) != null)
+				{
+					document.getElementById(baliseId).style.visibility='hidden';
+					document.getElementById(baliseId).style.display='none';
+				}
+			}
+			function changeForm(type)
+			{
+				PrintId('host');
+				HideId('poid');
+				switch (type) {
+				case 'MX':
+					document.getElementById('ttl_input').value ='<?php echo $ttl_default["MX"]; ?>' ;
+					HideId('host');
+					PrintId('poid');
+				break;
+				case 'AAAA':
+					document.getElementById('ttl_input').value ='<?php echo $ttl_default["AAAA"]; ?>' ;
+				break;
+				case 'A':
+					document.getElementById('ttl_input').value ='<?php echo $ttl_default["A"]; ?>' ;
+				break;
+				case 'CNAME':
+					document.getElementById('ttl_input').value ='<?php echo $ttl_default["CNAME"]; ?>' ;
+				break;
+				case 'NS':
+					document.getElementById('ttl_input').value ='<?php echo $ttl_default["NS"]; ?>' ;
+					HideId('host');
+				break;
+				/*case 'PTR':
+					document.getElementById('ttl_input').value ='<?php echo $ttl_default["PTR"]; ?>' ;
+					HideId('host');
+				break;
+				case 'TXT':
+					document.getElementById('ttl_input').value ='<?php echo $ttl_default["TXT"]; ?>' ;
+					HideId('host');
+				break;*/
+				}
+			}
+		// ]]>
+		</script>
 	</head>
 	<body> 
-		<a href="http://code.google.com/p/dynamic-dnsupdate/"><img src="./images/domain.jpg" border="0" alt="Image" height="100" width="300"></a>
-		<h1>Web-based Dynamic DNS Update Program</h1>
-		<p class="version">
+	<h1><a href="http://code.google.com/p/dynamic-dnsupdate/"><img src="./images/domain.jpg" alt="0" height="100" width="300" /></a>
+	<br />Web-based Dynamic DNS Update Program</h1>
+	<p class="version">
 		<i>Project Homepage: <a href="http://code.google.com/p/dynamic-dnsupdate/"><?php echo $version; ?></a></i>
 		</p>
 		<p> This is a web-based dynamic DNS update program that can add, replace or delete DNS resource records in a master server.
@@ -33,25 +95,30 @@ $command=$_GET[command];
 		<p> 
 		Your IP address:<b> <?php echo $remote_ip; ?></b>.
 		</p>
-		<form method="get" action="./dnsupdate.php" name="DynamicDNSUpdate">
-			<hr align="left" width="600">
-			Domain name: 
+		<form method="get" action="./dnsupdate.php">
+			<label>Domain name: </label>
 			<select name="domain"> 
-				<option <?php if ($domain == $mydomain1) { echo "selected"; } ?> value="<?php echo $mydomain1; ?>">
-				<?php echo $mydomain1; ?>
-				</option>
-				<option <?php if ($domain == $mydomain2) { echo "selected"; } ?> value="<?php echo $mydomain2; ?>">
-				<?php echo $mydomain2; ?>
-				</option>
+			<?php
+			if ($domain == NULL)
+				echo "<option selected=\"selected\" value=\"NULL\"> - </option>";
+			foreach ($mydomain_tab as $mydomain) 
+			{ 
+				if ($domain == $mydomain)
+					echo "<option selected=\"selected\" value=\"".$mydomain."\">".$mydomain."</option>";
+				else
+					echo "<option value=\"".$mydomain."\">".$mydomain."</option>";
+			}
+			?>
 			</select> 
-			<input name="command" type="submit" value="Go"> 
-			<input name="command" type="submit" value="Authcode"> 
-			<a href="authcode.html" class="small">What is authcode?</a>
+			<input name="command" type="submit" value="Go" /> 
+			<input name="command" type="submit" value="Authcode" /> 
+			<span><a href="authcode.html" class="small">What is authcode?</a></span>
 		</form>		
 <?php
+if ($domain != NULL)
+{
 		if ($command == "Authcode")
 		{
-
 			// http://www.z-host.com/scripts/ipasswd/
 			$salt = str_replace(".", "", $domain);
 
@@ -66,7 +133,6 @@ $command=$_GET[command];
 
 			echo "Your auth code is <strong>" . $password . "</strong>";
 
-			$file = '/home/cslab/public_html/dnsupdate/.htpasswd';
 			$file_contents = file_get_contents($file);
 			$fh = fopen($file, "w");
 			$file_contents = "dnsupdate:" . $password2;
@@ -75,49 +141,35 @@ $command=$_GET[command];
 		}
 ?>
 		<h3 style="font-family: Arial;">
-			<img src="./images/btn_dns_bg.gif" alt="Image" align="bottom" width="20"> Add a resource record</h3>
+			<img src="./images/btn_dns_bg.gif" alt="Image" align="bottom" width="20" /> Add a resource record</h3>
 		<form style="font-family: Arial;" method="get" action="./dnsupdate2.php" name="DynamicDNSUpdate">
-			<table border="1" cellpadding="3" cellspacing="0">
-				<tbody>
-					<tr> 
-						<td width="100"> Domain</td> 
-						<td width="400"> 
-							<input name="domain" class="box" value="<?php if ($domain == NULL) { echo $mydomain1; } else { echo $domain; } ?>" disabled></td>
-					</tr>
-					<tr><td> Nameserver</td> 
-						<td width="370"> 
-							<input name="nameserver" class="box" value="<?php echo $ns1; ?>" disabled></td>
-					</tr>
-					<tr><td> Host</td> 
-						<td width="370"> 
-							<input name="host" class="box" value="test1"></td>
-					</tr>
-					<tr><td> TTL</td> 
-						<td width="370"> 
-							<input name="ttl" value="60" checked="checked" type="radio">60 
-							<input name="ttl" value="3600" type="radio">3600 (1 Hour) 
-							<input name="ttl" value="86400" type="radio">86400 (1 Day) 
-							<input name="ttl" value="604800" type="radio">604800 (1 Week)</td>
-					</tr>
-					<tr><td> Type</td> 
-						<td width="370"> 
-							<input name="type" value="A" type="radio" checked>A 
-							<input name="type" value="CNAME" type="radio">CNAME 
-							<input name="type" value="NS" type="radio">NS 
-							<input name="type" value="MX" type="radio">MX 
-							<input name="type" value="TXT" type="radio" >TXT </td>
-					</tr>
-					<tr><td> Type Value&nbsp;</td><td> 
-							<input name="type_value" class="box" value="192.168.0.1" type="text"></td>
-					</tr>
-				</tbody>
-			</table> 
-			<br> 
-			<input name="domain" style="font-weight: bold;" value="<?php if ($domain == NULL) { echo $mydomain1; } else { echo $domain; } ?>" type="hidden"> 
-			<input name="command" style="font-weight: bold;" value="Add" type="submit"> 
-			<input name="command" style="font-weight: bold;" value="Cancel" type="reset">
+			<p><label>Domain </label>
+				<input name="domain" class="box" value="<?php if ($domain == NULL) { echo $mydomain; } else { echo $domain; } ?>" disabled="disabled" /></p>
+			<p><label>Nameserver : </label>
+				<input name="nameserver" class="box" value="<?php echo $ns1; ?>" disabled="disabled" /></p>
+			<p><label>Type : </label> 
+				<input name="type" value="A" type="radio" onclick="changeForm('A')" checked="checked" />A 
+				<input name="type" value="AAAA" type="radio" onclick="changeForm('AAAA')" />AAAA
+				<input name="type" value="CNAME" type="radio" onclick="changeForm('CNAME')" />CNAME 
+				<input name="type" value="NS" type="radio" onclick="changeForm('NS')" />NS 
+				<input name="type" value="MX" type="radio"  onclick="changeForm('MX')" />MX 
+				<input name="type" value="TXT" type="radio" onclick="changeForm('TXT')" /><s>TXT</s>
+				<input name="type" value="PTR" type="radio" onclick="changeForm('PTR')" /><s>PTR</s> </p>
+			<p id="host"><label>Host :</label> 
+				<input name="host" id="host_input" class="box" value="" /></p>
+			<p><label>TTL : </label> 
+				<input name="ttl" id="ttl_input" class="box" value="" type="text" />
+				<small>60 / 3600 (1 Hour) / 86400 (1 Day) / 604800 (1 Week)</small></p>
+			<p id="ttl_exemple"></p>
+			<p id="poid"><label>Poid : </label> 
+				<input name="poid" class="box" value="5" /></p>
+			<p><label>Type Value : </label> 
+				<input name="type_value" class="box" value="" type="text" /></p>
+			<input name="domain" style="font-weight: bold;" value="<?php if ($domain == NULL) { echo $mydomain1; } else { echo $domain; } ?>" type="hidden" /> 
+			<input name="command" style="font-weight: bold;" value="Add" type="submit" /> 
 		</form><h3>
-			<img src="./images/btn_dns_bg.gif" alt="Image" align="bottom" width="20"> Delete a resource record</h3>
+			<img src="./images/btn_dns_bg.gif" alt="Image" align="bottom" width="20" /> Delete a resource record</h3>
+			
 		<form method="get" action="./dnsupdate2.php" name="DynamicDNSUpdate">
 			<table border="1" cellpadding="3" cellspacing="0">
 				<tr> <td>Check</td> 
@@ -135,7 +187,7 @@ $resolver->nameservers = array( $ns1 );
 $resolver->debug = 0;
 if ($domain == NULL) 
 { 
-	$axfrdomain = $mydomain1; 
+	$axfrdomain = $mydomain_tab[0]; 
 } 
 else 
 { 
@@ -151,7 +203,7 @@ if (count($response))
 		{
 			echo "<tr>";
 			echo "<td style='background-color: rgb(255, 255, 204);'>";
-			echo "<input name=rrnumber value=$i type=checkbox>";
+			echo "<input name=\"rrnumber[]\" value=\"".$i."\" type=\"checkbox\" />";
 			echo "</td>";
 			echo "<td style='background-color: rgb(255, 255, 204);'>";
 			echo $response[$i]->name;
@@ -168,11 +220,32 @@ if (count($response))
 			echo "</tr>";
 			
 		}
+		else if ( ($response[$i]->type) == "AAAA"  )
+		{
+			echo "<tr>";
+			echo "<td style='background-color: rgb(200, 255, 204);'>";
+			echo "<input name=\"rrnumber[]\" value=\"".$i."\" type=\"checkbox\" />";
+			echo "</td>";
+			echo "<td style='background-color: rgb(200, 255, 204);'>";
+			echo $response[$i]->name;
+			echo "</td>";
+			echo "<td style='background-color: rgb(200, 255, 204);'>";
+			echo $response[$i]->ttl;
+			echo "</td>";
+			echo "<td style='background-color: rgb(200, 255, 204);'>";
+			echo $response[$i]->type;
+			echo "</td>";
+			echo "<td style='background-color: rgb(200, 255, 204);'>";
+			echo $response[$i]->address;
+			echo "</td>";
+			echo "</tr>";
+			
+		}
 		else if ( ($response[$i]->type) == "MX" )
 		{
 			echo "<tr>";
 			echo "<td style='background-color: rgb(255, 204, 153);'>";
-			echo "<input name=rrnumber value=$i type=checkbox>";
+			echo "<input name=\"rrnumber[]\" value=\"".$i."\" type=\"checkbox\" />";
 			echo "</td>";
 			echo "<td style='background-color: rgb(255, 204, 153);'>";
 			echo $response[$i]->name;
@@ -185,7 +258,7 @@ if (count($response))
 			echo "</td>";
 			echo "<td style='background-color: rgb(255, 204, 153);'>";
 			echo "Preference: <b>" . $response[$i]->preference . "</b>";
-			echo "<br>";
+			echo "<br />";
 			echo "Exchanger: <b>" . $response[$i]->exchange . "</b>";
 			echo "</td>";
 			echo "</tr>";
@@ -194,7 +267,7 @@ if (count($response))
 		{
 			echo "<tr>";
 			echo "<td style='background-color: #CCFFFF;'>";
-			echo "<input name=rrnumber value=$i type=checkbox>";
+			echo "<input name=\"rrnumber[]\" value=\"".$i."\" type=\"checkbox\" />";
 			echo "</td>";
 			echo "<td style='background-color: #CCFFFF;'>";
 			echo $response[$i]->name;
@@ -214,7 +287,7 @@ if (count($response))
 		{
 			echo "<tr>";
 			echo "<td style='background-color: #CCFFFF;'>";
-			echo "<input name=rrnumber value=$i type=checkbox>";
+			echo "<input name=\"rrnumber[]\" value=\"".$i."\" type=\"checkbox\" />";
 			echo "</td>";
 			echo "<td style='background-color: #CCFFFF;'>";
 			echo $response[$i]->name;
@@ -230,11 +303,31 @@ if (count($response))
 			echo "</td>";
 			echo "</tr>";
 		}
+		else if ( ($response[$i]->type) == "PTR" )
+		{
+			echo "<tr>";
+			echo "<td style='background-color: #ECCCFF;'>";
+			echo "<input name=\"rrnumber[]\" value=\"".$i."\" type=\"checkbox\" />";
+			echo "</td>";
+			echo "<td style='background-color: #ECCCFF;'>";
+			echo $response[$i]->name;
+			echo "</td>";
+			echo "<td style='background-color: #ECCCFF;'>";
+			echo $response[$i]->ttl;
+			echo "</td>";
+			echo "<td style='background-color: #ECCCFF;'>";
+			echo $response[$i]->type;
+			echo "</td>";
+			echo "<td style='background-color: #ECCCFF;'>";
+			echo $response[$i]->ptrdname;
+			echo "</td>";
+			echo "</tr>";
+		}
 		else if ( ($response[$i]->type) == "SOA" )
 		{
 			echo "<tr>";
 			echo "<td style='background-color: #99FF99;'>";
-			echo "<input name=rrnumber value=$i type=hidden disabled>N/A";
+			echo "<input name=\"rrnumber[]\" value=\"".$i."\" type=\"hidden\" disabled=\"disabled\" />N/A";
 			echo "</td>";
 			echo "<td style='background-color: #99FF99;'>";
 			echo $response[$i]->name;
@@ -247,13 +340,13 @@ if (count($response))
 			echo "</td>";
 			echo "<td style='background-color: #99FF99;'>";
 			echo "Serial: <b>" . $response[$i]->serial . "</b>";
-			echo "<br>";
+			echo "<br />";
 			echo "Refresh: <b>" . $response[$i]->refresh . "</b>";
-			echo "<br>";
+			echo "<br />";
 			echo "Retry: <b>" . $response[$i]->retry . "</b>";
-			echo "<br>";
+			echo "<br />";
 			echo "Expire: <b>" . $response[$i]->expire . "</b>";
-			echo "<br>";
+			echo "<br />";
 			echo "Minimum: <b>" . $response[$i]->minimum . "</b>";
 			echo "</td>";
 			echo "</tr>";
@@ -262,7 +355,7 @@ if (count($response))
 		{
 			echo "<tr>";
 			echo "<td style='background-color: #99FF99;'>";
-			echo "<input name=rrnumber value=$i type=checkbox>";
+			echo "<input name=\"rrnumber[]\" value=\"".$i."\" type=\"checkbox\" />";
 			echo "</td>";
 			echo "<td style='background-color: #99FF99;'>";
 			echo $response[$i]->name;
@@ -274,9 +367,10 @@ if (count($response))
 			echo $response[$i]->type;
 			echo "</td>";
 			echo "<td style='background-color: #99FF99;'>";
-			echo $response[$i]->text[0];
-			echo $response[$i]->text[1];
-			echo $response[$i]->text[2];
+			foreach($response[$i]->text as $txt)
+			{
+				echo $txt."<br />";
+			}
 			echo "</td>";
 			echo "</tr>";
 		}
@@ -284,7 +378,7 @@ if (count($response))
 		{
 			echo "<tr>";
 			echo "<td style='background-color: #CCFFFF;'>";
-			echo "<input name=rrnumber value=$i type=checkbox>";
+			echo "<input name=\"rrnumber[]\" value=\"".$i."\" type=\"checkbox\" />";
 			echo "</td>";
 			echo "<td style='background-color: #CCFFFF;'>";
 			echo $response[$i]->name;
@@ -303,40 +397,22 @@ if (count($response))
     $i = $i + 1;
   }
 }
-/*----------------------------------------------------------------------------*/
-function md5key($domain)
-{
-	$md5key = md5($domain);
-	return $md5key;
-}
-/*----------------------------------------------------------------------------*/
 				?>
 			</table> 
-			<br> 
-			<input name="host" style="font-weight: bold;" value="<?php if ($domain == NULL) { echo $mydomain1; } else { echo $domain; } ?>" type="hidden"> 
-			<input name="command" style="font-weight: bold;" value="Delete" type="submit"> 
-			<input name="command" style="font-weight: bold;" value="Cancel" type="reset">
+			<br /> 
+			<input name="host" style="font-weight: bold;" value="<?php if ($domain == NULL) { echo $mydomain_tab[0]; } else { echo $domain; } ?>" type="hidden" /> 
+			<input name="command" style="font-weight: bold;" value="Delete" type="submit" /> 
+			<input name="command" style="font-weight: bold;" value="Cancel" type="reset" />
 		</form>
-<pre>
-<?php
-//print_r($response);
-?>
-</pre>
-		<hr>
 		<p class="copyright">
-			<?php echo $copyright; ?>
+			<?php echo $copyright; ?>  <a href="http://validator.w3.org/check?uri=referer">Valid XHTML 1.0 Transitional</a>
 		</p> 
-		<br> 
-		<br> 
-		<br>
-<script type="text/javascript">
-var gaJsHost = (("https:" == document.location.protocol) ? "https://ssl." : "http://www.");
-document.write(unescape("%3Cscript src='" + gaJsHost + "google-analytics.com/ga.js' type='text/javascript'%3E%3C/script%3E"));
-</script>
-<script type="text/javascript">
-var pageTracker = _gat._getTracker("UA-4194094-3");
-pageTracker._initData();
-pageTracker._trackPageview();
-</script>
+	<script type="text/javascript">
+	changeForm('A')
+	// No script compatible
+	</script>
+<?php
+}
+?>
 	</body>
 </html>
