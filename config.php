@@ -1,27 +1,34 @@
 <?php
 
-// My Domains
-$mydomain_tab=array('calyce.fr', 'freeserver.kr');
+error_reporting('ALL');
 
-// TTL default value
-$ttl_default=array( 'A' => '7200',
-					     'AAAA' => '7200',
-					     'CNAME' => '7200',
-					     'NS' => '60',
-					     'TXT' => '7200',
-     					'PTR' => '7200',
-		     			'MX' => '3600');
+// Include pear if isn't in include_path
+// set_include_path(get_include_path() . PATH_SEPARATOR . './include');
+
+// My Domains - Separate with ";"
+define('DOMAIN','novius.com;calyce.fr;freeserver.kr;1.168.192.in-addr.arpa');
 
 // Nameserver
-$ns1='211.208.163.118';
+define('NS1','192.168.1.253');
 
-// File for authCode (chmod 777 $file)
-$file = '/home/cslab/public_html/dnsupdate/.htpasswd';
+// signTSIG key (NULL = not use signTSIG)
+define('SIGNTSIG',NULL);
+// signSIG0 key (NULL = not use signSIG0 file)
+define('SIGNSIGO',NULL);
+
+
+// TTL default value
+define('TTL_A', 3600);
+define('TTL_AAAA', 3600);
+define('TTL_CNAME', 10800);
+define('TTL_NS', 3600);
+define('TTL_TXT', 10800);
+define('TTL_PTR', 10800);
+define('TTL_MX', 3600);
 
 // Version Information
-$version='Ver. 20080606 Rev.2';
+define('VERSION','Ver. 2.0');
 
 // Copyright
-$copyright='&copy; 2008 <u>Computer Science Laboratory Network</u> (CSLab.net) All rights reserved. -  
-<a href="http://validator.w3.org/check?uri=referer">Valid XHTML 1.0 Transitional</a>  <a href="http://jigsaw.w3.org/css-validator/check/referer">Valid CSS! </a>';
+define('LICENSE','License is GNU GPL v3. Computer Science Laboratory Network (CSLab.net) - <a href="http://www.calyce.fr">Calyce</a> - <a href="http://www.novius.com">Novius</a>');
 ?>
