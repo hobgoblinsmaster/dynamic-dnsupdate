@@ -70,9 +70,12 @@ td.action a {
 .recordTXT {
     background-color: #99FF99;
 }
+.recordSPF {
+    background-color: #FFCC99;
+}
 .recordSRV {
-    background-color: #CCFFFF;
+    background-color: #BFBFBF;
 }
 .recordUnknown {
-    background-color: #FE7C77;
+    background-color: #FFFFFF;
 }

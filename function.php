@@ -8,22 +8,29 @@
 //------------------------------------------------------------------------------
 
 function printTdAction($rr) {
-    echo '<td class="action"><a Onclick="deleteRecord(\''.formatRR($rr).'\', \''.$_SERVER['REQUEST_URI'].'&todo=recordDel&rr='.urlencode(formatRR($rr)).'\')" onMouseOver="this.href=\'#\'" " href="'.$_SERVER['REQUEST_URI'].'&todo=recordDel&rr='.urlencode(formatRR($rr)).'" title="Delete">X</a></td>';
+    echo '<td class="action"><a href="'.$_SERVER['REQUEST_URI'].'&todo=recordDel&rr='.urlencode(formatRR($rr)).'" title="Delete">X</a></td>';
 }
 
 function formatRR($data)
 {
-    if ($data['name'] != NULL && $data['name'] != '@') {
+    if ($data['name'] == '' || $data['name'] == '@') {
+        $data['name'] = $data['domain'];
+    } else if (!stripos($data['name'], $data['domain'])) {
         $data['name'] = $data['name'] . '.' . $data['domain'];
     } 
-    #print_r($data);
     switch($data['type'])
     {
         case 'MX';
-            return $data['name'] . '. ' . $data['ttl'] . ' IN ' . $data['type'] . ' ' . $data['poid'] . ' ' . $data['value'];
+            return $data['name'] . '. ' . $data['ttl'] . ' IN ' . $data['type'] . ' ' . $data['preference'] . ' ' . $data['value'];
+        break;
+        case 'SPF';
+            if ($data['command'] == 'Add') {
+                return $data['name'] . '. ' . $data['ttl'] . ' IN ' . $data['type'] . ' "' . $data['value'].'"';
+            } else {
+                return $data['name'] . '. ' . $data['ttl'] . ' IN ' . $data['type'] . ' ' . $data['value'];
+            }
         break;
         default;
-            # A / AAAA / CNAME / TXT / NS
             return $data['name'] . '. ' . $data['ttl'] . ' IN ' . $data['type'] . ' ' . $data['value'];
         break;
     }
