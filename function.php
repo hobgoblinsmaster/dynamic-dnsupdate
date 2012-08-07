@@ -59,11 +59,11 @@ function formAction($get) {
                 $u->delete($record);
             break;
         }
-        // add a TSIG to authenticate the request
-        if (SIGNSIGO != NULL) {
-            $r->signSIG0('my-key', SIGNSIGO);
-        } else if (SIGNTSIG != NULL) {
-            $r->signTSIG('updatekey', SIGNTSIG);
+        // add a TSIG / SIGO to authenticate the request
+        if (AUTH_SIGO != NULL) {
+            $u->signSIG0(AUTH_SIGO_NAME, AUTH_SIGO);
+        } else if (AUTH_TSIG != NULL) {
+            $u->signTSIG(AUTH_TSIG_NAME, AUTH_TSIG);
         }
         // execute the request
         $u->update();

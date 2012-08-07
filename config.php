@@ -12,9 +12,11 @@ define('DOMAIN','novius.com;calyce.fr;freeserver.kr;1.168.192.in-addr.arpa');
 define('NS1','192.168.1.253');
 
 // signTSIG key (NULL = not use signTSIG)
-define('SIGNTSIG',NULL);
+define('AUTH_TSIG',NULL);
+define('AUTH_TSIG_NAME','rndc-key');
 // signSIG0 key (NULL = not use signSIG0 file)
-define('SIGNSIGO',NULL);
+define('AUTH_SIGO',NULL);
+define('AUTH_SIGO_NAME','rndc-key');
 
 
 // TTL default value

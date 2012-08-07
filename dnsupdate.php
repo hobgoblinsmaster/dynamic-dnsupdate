@@ -252,10 +252,10 @@ $debug = isset($_GET['debug']);
     <?php
         $r = new Net_DNS2_Resolver(array('nameservers' => array(NS1)));
         // add a authenticate the request
-        if (SIGNSIGO != NULL) {
-            $r->signSIG0('my-key', SIGNSIGO);
-        } else if (SIGNTSIG != NULL) {
-            $r->signTSIG('my-key', SIGNTSIG);
+        if (AUTH_SIGO != NULL) {
+            $r->signSIG0(AUTH_SIGO_NAME, AUTH_SIGO);
+        } else if (AUTH_TSIG != NULL) {
+            $r->signTSIG(AUTH_TSIG_NAME, AUTH_TSIG);
         }
         try {
             $result = $r->query($domain, 'AXFR');
