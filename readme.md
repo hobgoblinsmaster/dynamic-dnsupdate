@@ -19,9 +19,9 @@ If I need, I will maybe try to keep this code working at least on latest Debian 
   * Rev 2. 2008-06-06 : Added TXT RR editing function
 
 ## Screen Shots ##
-| ![http://www.cslab.net/dnsupdate/images/nsupdate.gif](http://www.cslab.net/dnsupdate/images/nsupdate.gif) |
+| ![https://raw.githubusercontent.com/hobgoblinsmaster/dynamic-dnsupdate/master/images/nsupdate.gif](https://raw.githubusercontent.com/hobgoblinsmaster/dynamic-dnsupdate/master/images/nsupdate.gif) |
 |:----------------------------------------------------------------------------------------------------------|
-| ![http://www.cslab.net/dnsupdate/images/nsupdate2.gif](http://www.cslab.net/dnsupdate/images/nsupdate2.gif) |
+| ![https://raw.githubusercontent.com/hobgoblinsmaster/dynamic-dnsupdate/master/images/nsupdate2.gif](https://raw.githubusercontent.com/hobgoblinsmaster/dynamic-dnsupdate/master/images/nsupdate2.gif) |
 
 ## Commd line DNS Update ##
   * You can update DNS entries with either of these two command lines in Linux.
